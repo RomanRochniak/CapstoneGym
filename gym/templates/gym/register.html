@@ -1,0 +1,35 @@
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block title %}Register - RoshaClub{% endblock %}
+
+{% block content %}
+
+<h2 class="page-title">Register</h2>
+
+{% if message %}
+    <div class="message">{{ message }}</div>
+{% endif %}
+
+<form action="{% url 'register' %}" method="post" class="form-container">
+    {% csrf_token %}
+    <div class="form-group">
+        <input class="form-control" autofocus type="text" name="username" placeholder="Username" required>
+    </div>
+    <div class="form-group">
+        <input class="form-control" type="email" name="email" placeholder="Email" required>
+    </div>
+    <div class="form-group">
+        <input class="form-control" type="password" name="password" placeholder="Password" required>
+    </div>
+    <div class="form-group">
+        <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password" required>
+    </div>
+    <input class="btn-primary" type="submit" value="Register">
+</form>
+
+<div class="form-links">
+    Already have an account? <a href="{% url 'login' %}">Login here.</a>
+</div>
+
+{% endblock %}

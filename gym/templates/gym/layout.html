@@ -1,0 +1,67 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="{% static 'gym/styles.css' %}" />
+    <title>{% block title %}RoshaClub{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <div class="nav__logo">
+            <a href="#"><img src="{% static 'gym/assets/logo1.PNG' %}" alt="logo" /></a>
+        </div>
+
+        <ul class="nav__links">
+            <li class="link"><a href="{% url 'index' %}">Home</a></li>
+            <li class="link">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'training_programs' %}">Training Program</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Training Program</a>
+                {% endif %}
+            </li>
+            <li class="link"><a href="{% url 'about_us' %}">About Us</a></li>
+            <li class="link"><a href="{% url 'community' %}">Community</a></li>
+            {% if user.is_authenticated %}
+                <li class="link nav__username">
+                    <a href="{% url 'profile' %}">Welcome, {{ user.username }}</a>
+                </li>
+                <li class="link "><a href="{% url 'logout' %}" class="auth-btn logout-btn">Logout</a></li>
+            {% else %}
+                <li class="link"><a href="{% url 'login' %}" class="auth-btn login-btn">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+        <div class="footer__content">
+            <div class="footer__links">
+                <div class="footer__social">
+                    <a href="#" class="social__icon"><i class="ri-facebook-box-fill"></i></a>
+                    <a href="#" class="social__icon"><i class="ri-instagram-fill"></i></a>
+                    <a href="#" class="social__icon"><i class="ri-twitter-fill"></i></a>
+                </div>
+                <p>© 2024 RoshaClub | All Rights Reserved</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script src="{% static 'gym/script.js' %}" ></script>
+    <script src="{% static 'gym/google-pay.js' %}" ></script>
+</body>
+</html>

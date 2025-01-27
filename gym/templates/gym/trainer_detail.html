@@ -1,0 +1,33 @@
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block content %}
+<section class="trainer-detail__container">
+    <div class="trainer-detail__header">
+        <div class="trainer-detail__image-container">
+            {% if trainer.photo %}
+                <img src="{{ trainer.photo.url }}" alt="{{ trainer.name }}" class="trainer-detail__image">
+            {% else %}
+                <p>No photo available</p>
+            {% endif %}
+        </div>
+
+        <div class="trainer-detail__info-container">
+            <h1 class="trainer-detail__name">{{ trainer.name }}</h1>
+            <p><strong>Specialization:</strong> {{ trainer.specialization }}</p>
+            <p><strong>Description:</strong> {{ trainer.description }}</p>
+        </div>
+    </div>
+
+    <h2>Training Programs:</h2>
+    <ul>
+        {% for program in programs %}
+            <li class="trainer-detail__program-name">{{ program.name }}</li>
+        {% empty %}
+            <li>No programs available</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'training_programs' %}" class="trainer-detail__btn">Back to training programs</a>
+
+</section>
+{% endblock %}

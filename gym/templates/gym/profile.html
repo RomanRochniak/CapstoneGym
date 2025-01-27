@@ -1,0 +1,72 @@
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block title %}User Profile - RoshaClub{% endblock %}
+
+{% block content %}
+<section class="profile-page__container">
+    <h2 class="profile-page__header">Welcome, {{ user.username }}!</h2>
+    <p class="profile-page__subheader">Here are your personal details and progress.</p>
+
+    <div class="profile-page__details">
+        <div class="profile-page__item">
+            <h4>Name:</h4>
+            <p>{{ user.first_name }} {{ user.last_name }}</p>
+        </div>
+        <div class="profile-page__item">
+            <h4>Email:</h4>
+            <p>{{ user.email }}</p>
+        </div>
+
+        {% if membership %}
+        <div class="profile-page__item">
+            <h4>Membership Plan:</h4>
+            <p>{{ membership.program.name }}</p>
+        </div>
+        <div class="profile-page__item">
+            <h4>Start Date:</h4>
+            <p>{{ membership.start_date|date:"F d, Y" }}</p>
+        </div>
+        <div class="profile-page__item">
+            <h4>End Date:</h4>
+            <p>{{ membership.end_date|date:"F d, Y" }}</p>
+        </div>
+        <div class="profile-page__item">
+            <h4>Status:</h4>
+            <p>{{ membership.status }}</p>
+        </div>
+        
+        {% if trainer %}
+        <div class="profile-page__item">
+            <h4>Trainer:</h4>
+            <p>{{ trainer.name }}</p>
+            {% if trainer.photo.url %}
+            <img src="{{ trainer.photo.url }}" alt="Trainer Photo" width="100" height="100">
+            {% else %}
+            <p>No profile picture available.</p>
+            {% endif %}
+        </div>
+        <!-- Опис тренера -->
+        <div class="profile-page__item">
+            <h4>Trainer Description:</h4>
+            <p>{{ trainer.description }}</p>
+        </div>
+        {% else %}
+        <div class="profile-page__item">
+            <h4>No trainer assigned to this program.</h4>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="profile-page__item">
+            <h4>You don't have an active membership.</h4>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="profile-page__actions">
+        {% if user.is_authenticated %}
+        <a href="{% url 'edit_profile' %}" class="btn">Edit Profile</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

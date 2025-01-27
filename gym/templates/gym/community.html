@@ -1,0 +1,86 @@
+{% extends "gym/layout.html" %}  {% load static %} 
+
+{% block content %}
+    <h1>Gym Community</h1>
+
+    {% if user.is_authenticated %}
+        <h2>New Post</h2>
+        <form id="new-post-form" action="{% url 'new_post' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <textarea name="content" rows="4" cols="100" placeholder="Share your workout tips..."></textarea><br>
+            Image URL: <input type="url" name="image_url" placeholder="Enter image URL"><br>
+            <input type="submit" value="Post" class="btn btn-primary">
+        </form>
+    {% endif %}
+
+    <div class="all_posts">
+        {% for post in page_posts %}
+            <div class="post">
+                {% if post.image_url %}
+                    <img src="{{ post.image_url }}" alt="Post Image">
+                {% endif %}
+                <div class="post-content"> 
+                    <div class="row">
+                        <h5 class="username"><a href="{% url 'user_posts' post.user.username %}">@{{ post.user.username }}</a></h5>  
+                        <h6 class="content" id="content_{{ post.id }}">{{ post.content }}</h6>
+                        <p class="date">{{ post.created_at }}</p>
+                        <div class="post-actions">
+
+                            {% if user.is_authenticated %}
+                                <button id="like_button_{{ post.id }}"
+                                        class="like-btn {% if post.id in liked_post_ids %}liked{% endif %}"
+                                        onclick="likeHandler({{ post.id }}, {% if post.id in liked_post_ids %}true{% else %}false{% endif %})">
+                                    <i id="like_icon_{{ post.id }}" class="{% if post.id in liked_post_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                                    <span id="like_count_{{ post.id }}">{{ post.like_count }}</span>
+                                </button>
+                            {% endif %}
+
+                            {% if user == post.user %}
+                                <button class="edit-btn" data-toggle="modal" data-target="#modal_edit_post_{{ post.id }}">Edit</button>
+
+                                <!-- Delete Button -->
+                                <form action="{% url 'delete_post' post.id %}" method="post" class="delete-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+
+                                <!-- Edit Post Modal -->
+                                <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="modal_edit_post_{{ post.id }}_label" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Post</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{ post.content }}</textarea>
+                                                Image URL: <input type="url" id="image_url_{{ post.id }}" class="form-control" name="image_url" value="{{ post.image_url }}">
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-primary" onclick="handleSubmit({{ post.id }})">Save changes</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <nav aria-label="Page navigation example"> 
+        <ul class="pagination d-flex justify-content-center">
+            {% if page_posts.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_posts.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            {% if page_posts.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_posts.next_page_number }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <script src="{% static 'gym/community.js' %}"></script>
+{% endblock %}

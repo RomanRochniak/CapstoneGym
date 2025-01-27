@@ -1,0 +1,137 @@
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block title %}Home - RoshaClub{% endblock %}
+
+{% block content %}
+<header class="section__container header__container slide-in-left">
+    <div class="header__content fade-in">
+        <span class="bg__blur"></span>
+        <span class="bg__blur header__blur"></span>
+        <h4>The Best Fitness Program</h4>
+        <h1><span>Improve</span> your body</h1>
+        <p>
+            Unlock your hidden superpowers! Join us in "Get Your Body Into Shape" and see how you can change — in ways you never imagined!
+        </p>
+        <a href="{% url 'register' %}">
+        <button class="btn">Let’s Start!</button>
+        </a>
+    </div> 
+    <div class="header__image">
+    </div>
+</header>
+
+<section class="section__container explore__container">
+    <div class="explore__header">
+        <h2 class="section__header">Check Out Our Programs (Seriously, we have it all)</h2>
+    </div>
+    <div class="explore__grid">
+        <div class="explore__card">
+            <span><i class="ri-boxing-fill"></i></span>
+            <h4>Strength Training</h4>
+            <p>
+                Become stronger not only physically but also mentally. You’ll also get a real workout — even Guts from Berserk couldn’t handle our training. 🏋️‍♂️
+            </p>
+        </div>
+        <div class="explore__card">
+            <span><i class="ri-heart-pulse-fill"></i></span>
+            <h4>Physical Fitness</h4>
+            <p>
+                It’s not just about looking good — it’s about feeling even better! Train like Zyzz and show who’s the true sword master.
+            </p>
+        </div>
+        <div class="explore__card">
+            <span><i class="ri-run-line"></i></span>
+            <h4>Fat Loss</h4>
+            <p>
+                Don't know what foot day is yet? Go through it, and you'll understand why we say: "Always release air when you go on foot day." 😅
+            </p>
+        </div>
+        <div class="explore__card">
+            <span><i class="ri-shopping-basket-fill"></i></span>
+            <h4>Weight Gain</h4>
+            <p>
+                Because who said gaining weight can't be as exciting as losing it? As soon as your heart gets broken by a girl, you’ll instantly gain 100 kg — no joke.
+            </p>
+        </div>
+    </div>
+</section>
+
+
+<section class="section__container class__container fade-in-fog">
+    <div class="class__image">
+        <span class="bg__blur"></span>
+        <img src="{% static 'gym/assets/class-2.jpg' %}" alt="class" class="class__img-1">
+        <img src="{% static 'gym/assets/class-4.webp' %}" alt="class" class="class__img-2">
+    </div>
+    <div class="class__content fadeInConten">
+        <h2 class="section__header">Great Workouts That Will Really Make You Sweat</h2>
+        <p>
+            Imagine a workout so amazing you won’t even notice how you're stepping out of your comfort zone.
+        </p>
+        <a href="{% url 'register' %}">
+            <button class="btn">Sign Up for a Training Session (if you're ready)</button>
+        </a>
+    </div>
+</section>
+
+<section class="section__container join__container">
+    <h2 class="section__header">Why Join Us? (Hint: We're Awesome)</h2>
+    <p class="section__subheader">
+        It's like family here — only with better fitness. We support each other in achieving our fitness goals.
+    </p>
+    <div class="join__image fade-in-fog">
+        <img class="join__img" src="{% static 'gym/assets/joinus.jpg' %}" alt="Join" />
+        <div class="join__grid">
+            <div class="join__card">
+                <span><i class="ri-user-star-fill"></i></span>
+                <div class="join__card__content">
+                    <h4>Your Personal Trainer</h4>
+                    <p>They'll help you reach your peak. In the most motivating way! By the way, we have Roman Rochniak and Georgy Danilov, so you’ll train with legends!</p>
+                </div>
+            </div>
+            <div class="join__card">
+                <span><i class="ri-vidicon-fill"></i></span>
+                <div class="join__card__content">
+                    <h4>Training Sessions</h4>
+                    <p>Training makes a master. And you'll be very sweaty. But above all, perfect. And don’t forget leg day!</p>
+                </div>
+            </div>
+            <div class="join__card">
+                <span><i class="ri-building-line"></i></span>
+                <div class="join__card__content">
+                    <h4>Professional Management</h4>
+                    <p>Because your fitness journey deserves professional support. Even the worst physique gets trained here and turns into something beautiful!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section__container price__container">
+    <h2 class="section__header">Prices (We’re Cheaper Than a Doctor)</h2>
+    <p class="section__subheader">
+        Choose your plan. We promise we won’t charge you as much as a gym membership. And certainly not as much as you spend on coffee daily.
+    </p>
+    <div class="price__grid">
+        {% for program in programs %}
+            <form action="{% url 'process_payment' program_id=program.id %}" method="post">
+                {% csrf_token %} 
+                <div class="price__card">
+                    <div class="price__card__content">
+                        <h4>{{ program.name }}</h4>
+                        <h3>${{ program.price }}</h3>
+                        <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
+                    </div>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'training_programs' %}" class="btn price__btn">Join Now</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn price__btn">Join Now</a>
+                    {% endif %}
+                </div>
+            </form>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block title %}Training Programs - RoshaClub{% endblock %}
+
+{% block content %}
+<section class="section__container trainers__container">
+    <h2 class="section__header">Meet Our Elite Trainers</h2>
+    <p class="section__subheader">Highly qualified and dedicated to your success.</p>
+    <div class="team__grid">  
+        {% for trainer in trainers %}
+            <div class="team__member">
+                <div class="team__member-image"> <!-- Image container for easier styling -->
+                    {% if trainer.photo %}
+                        <img src="{{ trainer.photo.url }}" alt="{{ trainer.name }}" class="team__photo" />
+                    {% else %}
+                        <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" /> 
+                    {% endif %}
+                </div>
+                <div class="team__member-info">
+                    <h3 class="team__name">{{ trainer.name }}</h3>
+                    <p class="team__role">{{ trainer.specialization }}</p>
+                    <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+
+<section class="section__container join__container">
+    <h2 class="section__header">Why Join Our Training Programs?</h2>
+    <p class="section__subheader">
+        Our training programs are designed to help you reach your fitness goals faster. Whether you want to lose weight, build muscle, or improve your endurance, we have the perfect program for you.
+    </p>
+    <div class="join__image fade-in-fog">
+        <img class="join__img" src="{% static 'gym/assets/joinus.jpg' %}" alt="Join Us" />
+        <div class="join__grid">
+            <div class="join__card">
+                <span><i class="ri-user-star-fill"></i></span>
+                <div class="join__card__content">
+                    <h4>Expert Trainers</h4>
+                    <p>Our trainers are experienced and passionate about helping you achieve your goals. You'll be guided every step of the way.</p>
+                </div>
+            </div>
+            <div class="join__card">
+                <span><i class="ri-vidicon-fill"></i></span>
+                <div class="join__card__content">
+                    <h4>Variety of Classes</h4>
+                    <p>We offer a variety of training programs, so you never get bored and always stay challenged.</p>
+                </div>
+            </div>
+            <div class="join__card">
+                <span><i class="ri-building-line"></i></span>
+                <div class="join__card__content">
+                    <h4>Top-Notch Facilities</h4>
+                    <p>Our gym is equipped with state-of-the-art equipment and designed to make your fitness journey as enjoyable as possible.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="section__container price__container">
+    <h2 class="section__header">Prices (We’re Cheaper Than a Doctor)</h2>
+    <p class="section__subheader">
+        Choose your plan. We promise we won’t charge you as much as a gym membership. And certainly not as much as you spend on coffee daily.
+    </p>
+    <div class="price__grid">
+        {% for program in programs %}
+            <form action="{% url 'process_payment' program_id=program.id %}" method="post">
+                {% csrf_token %} 
+                <div class="price__card">
+                    <div class="price__card__content">
+                        <h4>{{ program.name }}</h4>
+                        <h3>${{ program.price }}</h3>
+                        <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
+
+                        {% if program.trainer %}  
+                            <p>Trainer: {{ program.trainer.name }}</p>
+                        {% elif program.trainers.all %} 
+                            <p>Trainers: 
+                                {% for trainer in program.trainers.all %}
+                                    {{ trainer.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+
+                    </div>
+                    <a href="{% url 'payments' %}?program_id={{ program.id }}" class="btn price__btn">
+                        Pay for {{ program.name }}
+                    </a>
+                    <div id="google-pay-button-container"></div>
+                </div>
+            </form>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "gym/layout.html" %}
+
+{% block content %}
+    <h2>{{ profile_user.username }}'s Posts</h2>
+
+    {% for post in posts %}
+        <div class="post">
+
+            {% if post.image_url %}
+                <img src="{{ post.image_url }}" alt="Post Image">
+            {% endif %}
+
+            <p>{{ post.content }}</p>
+
+            {% if user.is_authenticated %}
+                <!-- Like button -->
+                <button id="like_button_{{ post.id }}"
+                        class="btn btn-info col-1 {% if post.id in liked_post_ids %}liked{% endif %}"
+                        onclick="likeHandler({{ post.id }}, {% if post.id in liked_post_ids %}true{% else %}false{% endif %})">
+                    <i id="like_icon_{{ post.id }}" class="{% if post.id in liked_post_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                    <span id="like_count_{{ post.id }}">{{ post.like_count }}</span>
+                </button>
+            {% endif %}
+
+            {% if user == post.user %}
+                <!-- Edit button and modal -->
+                <button class="btn btn-primary edit-btn" data-toggle="modal" data-target="#modal_edit_post_{{ post.id }}">Edit</button>
+
+                <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="modal_edit_post_{{ post.id }}_label" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Post</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{ post.content }}</textarea>
+                                Image URL: <input type="url" id="image_url_{{ post.id }}" class="form-control" name="image_url" value="{{ post.image_url }}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" onclick="handleSubmit({{ post.id }})">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>  <!-- End of modal -->
+            {% endif %}
+
+        </div>
+    {% endfor %}
+{% endblock %}

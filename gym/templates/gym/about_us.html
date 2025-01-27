@@ -1,0 +1,90 @@
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block title %}About Us - RoshaClub{% endblock %}
+
+{% block content %}
+<section class="about-section">
+    <div class="content-wrapper">
+        <div class="image-container">
+            <img src="{% static 'gym/assets/garage_start.jpg' %}" alt="Garage Beginnings" class="featured-image">
+        </div>
+        <div class="text-container">
+            <h2 class="section-title">Our Story</h2>
+            <div class="story-section">
+                <p>
+                    RoshaClub is not just a gym—it's a legacy. A place where dreams, dedication, and determination turned into a world-class fitness haven.
+                </p>
+                <h3>The Humble Beginnings</h3>
+                <p>
+                    It all started in a small garage in the heart of our city, where four passionate fitness enthusiasts—**Roman Rochniak**,
+                    **Georgiy Danilov**, **Mikita Bakhai**, and **Vasyl Hrytsyshyn**—decided to turn their vision into reality. With nothing
+                    but a few rusty dumbbells and a shared dream, they transformed the space into a hub for fitness and community.
+                </p>
+            </div>
+            <div class="story-section">
+                <h3>From Garage to Glory</h3>
+                <p>
+                    Over the years, the garage became a beacon of excellence, attracting not only local enthusiasts but also global icons.
+                    Legends like **Arnold Schwarzenegger**, **Kevin Levrone**, **Ronnie Coleman**, and **Tom Platz** trained here, inspired
+                    by the authenticity and relentless drive of the founders.
+                </p>
+            </div>
+
+            <div class="founders-section">
+                <h3>Our Founders</h3>
+                <ul class="founder-list">
+                    <li class="founder-item"><i class="fas fa-user"></i> <strong>Roman Rochniak</strong> - The visionary.</li>
+                    <li class="founder-item"><i class="fas fa-dumbbell"></i> <strong>Georgiy Danilov</strong> - World-class coach.</li>
+                    <li class="founder-item"><i class="fas fa-leaf"></i> <strong>Mikita Bakhai</strong> - Nutrition expert.</li>
+                    <li class="founder-item"><i class="fas fa-boot"></i> <strong>Vasyl Hrytsyshyn</strong> - Leg training genius.</li>
+                </ul>
+            </div>
+
+            <div class="cta-section">
+                <h3>Join the Legacy</h3>
+                <p>Become a part of our inspiring fitness journey.</p>
+                <br>
+                    <a href="{% url 'register' %}" class="btn">Join Us Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section__container trainers__container">
+    <h2 class="section__header">Meet Our Elite Trainers</h2>
+    <p class="section__subheader">Highly qualified and dedicated to your success.</p>
+    <div class="team__grid">  
+        {% for trainer in trainers %}
+            <div class="team__member">
+                <div class="team__member-image">
+                    {% if trainer.photo %}
+                        <img src="{{ trainer.photo.url }}" alt="{{ trainer.name }}" class="team__photo" />
+                    {% else %}
+                        <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" /> 
+                    {% endif %}
+                </div>
+                <div class="team__member-info">
+                    <h3 class="team__name">{{ trainer.name }}</h3>
+                    <p class="team__role">{{ trainer.specialization }}</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-trainer">View Profile</a>
+                    {% endif %}
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="cta">
+    <h2 class="cta__header">Ready to Join the Family?</h2>
+    <p class="cta__text">
+        Become part of the RoshaClub community today. Let’s make your fitness journey unforgettable!
+    </p>
+    <a href="{% url 'register'%}" class="btn">Join Us Now</a>
+</section>
+
+{% endblock %}
