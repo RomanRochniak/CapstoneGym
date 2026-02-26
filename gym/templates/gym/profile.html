@@ -4,69 +4,331 @@
 {% block title %}User Profile - RoshaClub{% endblock %}
 
 {% block content %}
-<section class="profile-page__container">
-    <h2 class="profile-page__header">Welcome, {{ user.username }}!</h2>
-    <p class="profile-page__subheader">Here are your personal details and progress.</p>
 
-    <div class="profile-page__details">
-        <div class="profile-page__item">
-            <h4>Name:</h4>
-            <p>{{ user.first_name }} {{ user.last_name }}</p>
-        </div>
-        <div class="profile-page__item">
-            <h4>Email:</h4>
-            <p>{{ user.email }}</p>
+<div style="
+  background:
+    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+  min-height: 100vh;
+  padding: 4.2rem 1rem 3rem;
+">
+
+  <div style="max-width: 1100px; margin: 0 auto;">
+
+    {# HERO #}
+    <section style="margin-bottom: 1.4rem;">
+      <div style="
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap: 1.2rem;
+        flex-wrap:wrap;
+      ">
+        <div style="max-width: 760px;">
+          <div style="
+            display:inline-flex;
+            align-items:center;
+            gap:.6rem;
+            padding:.45rem .8rem;
+            border-radius:999px;
+            border:1px solid rgba(255,215,0,.22);
+            background:rgba(0,0,0,.22);
+            color:rgba(255,215,0,.95);
+            font-weight:800;
+            letter-spacing:.3px;
+            margin-bottom: 1.1rem;
+          ">
+            <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
+            Profile • Progress • Membership
+          </div>
+
+          <h1 style="margin:0; color:#fff; font-weight: 900; font-size: 2.6rem; line-height:1.1;">
+            Welcome, <span style="color:#FFD700;">{{ user.username }}</span>
+          </h1>
+
+          <p style="margin:.65rem 0 0; color: rgba(255,255,255,.74); line-height: 1.75; font-size: 1.02rem;">
+            Here are your personal details and current membership status.
+          </p>
         </div>
 
-        {% if membership %}
-        <div class="profile-page__item">
-            <h4>Membership Plan:</h4>
-            <p>{{ membership.program.name }}</p>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <a href="{% url 'edit_profile' %}" class="btn price__btn" style="text-decoration:none; border-radius: 14px;">
+            Edit Profile
+          </a>
+          <a href="{% url 'training_programs' %}" class="btn btn-primary" style="text-decoration:none; border-radius:14px; font-weight:900;">
+            Browse Programs
+          </a>
         </div>
-        <div class="profile-page__item">
-            <h4>Start Date:</h4>
-            <p>{{ membership.start_date|date:"F d, Y" }}</p>
-        </div>
-        <div class="profile-page__item">
-            <h4>End Date:</h4>
-            <p>{{ membership.end_date|date:"F d, Y" }}</p>
-        </div>
-        <div class="profile-page__item">
-            <h4>Status:</h4>
-            <p>{{ membership.status }}</p>
-        </div>
-        
-        {% if trainer %}
-        <div class="profile-page__item">
-            <h4>Trainer:</h4>
-            <p>{{ trainer.name }}</p>
-            {% if trainer.photo.url %}
-            <img src="{{ trainer.photo.url }}" alt="Trainer Photo" width="100" height="100">
-            {% else %}
-            <p>No profile picture available.</p>
-            {% endif %}
-        </div>
-        <!-- Опис тренера -->
-        <div class="profile-page__item">
-            <h4>Trainer Description:</h4>
-            <p>{{ trainer.description }}</p>
-        </div>
-        {% else %}
-        <div class="profile-page__item">
-            <h4>No trainer assigned to this program.</h4>
-        </div>
-        {% endif %}
-        {% else %}
-        <div class="profile-page__item">
-            <h4>You don't have an active membership.</h4>
-        </div>
-        {% endif %}
-    </div>
+      </div>
+    </section>
 
-    <div class="profile-page__actions">
-        {% if user.is_authenticated %}
-        <a href="{% url 'edit_profile' %}" class="btn">Edit Profile</a>
-        {% endif %}
-    </div>
-</section>
+    {# MAIN CARD #}
+    <section style="
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      overflow: hidden;
+    ">
+      <div style="padding: 1.2rem 1.4rem; border-bottom: 1px solid rgba(255,255,255,.08); display:flex; justify-content:space-between; gap: 12px; flex-wrap:wrap;">
+        <div>
+          <div style="color:#fff; font-weight:900; font-size:1.2rem;">Account Overview</div>
+          <div style="color:rgba(255,255,255,.70);">Clean summary. No fluff.</div>
+        </div>
+
+        {# membership badge #}
+        <div>
+          {% if membership %}
+            <span style="
+              display:inline-flex;
+              align-items:center;
+              gap:.5rem;
+              padding:.55rem .9rem;
+              border-radius:999px;
+              border:1px solid rgba(34,197,94,.25);
+              background: rgba(34,197,94,.10);
+              color: rgba(255,255,255,.92);
+              font-weight:900;
+            ">
+              <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+              Active membership
+            </span>
+          {% else %}
+            <span style="
+              display:inline-flex;
+              align-items:center;
+              gap:.5rem;
+              padding:.55rem .9rem;
+              border-radius:999px;
+              border:1px solid rgba(245,158,11,.25);
+              background: rgba(245,158,11,.10);
+              color: rgba(255,255,255,.92);
+              font-weight:900;
+            ">
+              <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+              No active membership
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div style="padding: 1.4rem;">
+
+        {# grid of info cards #}
+        <div style="
+          display:grid;
+          grid-template-columns: repeat(12, minmax(0, 1fr));
+          gap: 12px;
+        ">
+
+          {# Name #}
+          <div style="
+            grid-column: span 6;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(0,0,0,.18);
+            padding: 1rem 1rem;
+          ">
+            <div style="color: rgba(255,255,255,.65); font-weight:800; margin-bottom:6px;">Name</div>
+            <div style="color:#fff; font-weight:900; font-size:1.1rem;">
+              {% if user.first_name or user.last_name %}
+                {{ user.first_name }} {{ user.last_name }}
+              {% else %}
+                —
+              {% endif %}
+            </div>
+          </div>
+
+          {# Email #}
+          <div style="
+            grid-column: span 6;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(0,0,0,.18);
+            padding: 1rem 1rem;
+          ">
+            <div style="color: rgba(255,255,255,.65); font-weight:800; margin-bottom:6px;">Email</div>
+            <div style="color:#fff; font-weight:900; font-size:1.1rem;">
+              {{ user.email|default:"—" }}
+            </div>
+          </div>
+
+          {% if membership %}
+
+            {# Plan #}
+            <div style="
+              grid-column: span 6;
+              border-radius: 16px;
+              border: 1px solid rgba(255,255,255,.10);
+              background: rgba(0,0,0,.18);
+              padding: 1rem 1rem;
+            ">
+              <div style="color: rgba(255,255,255,.65); font-weight:800; margin-bottom:6px;">Membership Plan</div>
+              <div style="color:#FFD700; font-weight:900; font-size:1.15rem;">
+                {{ membership.program.name }}
+              </div>
+            </div>
+
+            {# Status #}
+            <div style="
+              grid-column: span 6;
+              border-radius: 16px;
+              border: 1px solid rgba(255,255,255,.10);
+              background: rgba(0,0,0,.18);
+              padding: 1rem 1rem;
+            ">
+              <div style="color: rgba(255,255,255,.65); font-weight:800; margin-bottom:6px;">Status</div>
+              <div style="color:#fff; font-weight:900; font-size:1.1rem;">
+                {{ membership.get_status_display }}
+              </div>
+            </div>
+
+            {# Dates #}
+            <div style="
+              grid-column: span 6;
+              border-radius: 16px;
+              border: 1px solid rgba(255,255,255,.10);
+              background: rgba(0,0,0,.18);
+              padding: 1rem 1rem;
+            ">
+              <div style="color: rgba(255,255,255,.65); font-weight:800; margin-bottom:6px;">Start Date</div>
+              <div style="color:#fff; font-weight:900; font-size:1.05rem;">
+                {{ membership.start_date|date:"F d, Y" }}
+              </div>
+            </div>
+
+            <div style="
+              grid-column: span 6;
+              border-radius: 16px;
+              border: 1px solid rgba(255,255,255,.10);
+              background: rgba(0,0,0,.18);
+              padding: 1rem 1rem;
+            ">
+              <div style="color: rgba(255,255,255,.65); font-weight:800; margin-bottom:6px;">End Date</div>
+              <div style="color:#fff; font-weight:900; font-size:1.05rem;">
+                {{ membership.end_date|date:"F d, Y" }}
+              </div>
+            </div>
+
+            {# Trainer block #}
+            <div style="
+              grid-column: span 12;
+              border-radius: 18px;
+              border: 1px solid rgba(255,255,255,.10);
+              background: rgba(255,255,255,.03);
+              padding: 1.2rem 1.2rem;
+              margin-top: 6px;
+            ">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; flex-wrap:wrap;">
+                <div>
+                  <div style="color:#fff; font-weight:900; font-size:1.2rem;">Your Coach</div>
+                  <div style="color:rgba(255,255,255,.70);">The one who makes sure you don’t stay average.</div>
+                </div>
+
+                {% if trainer %}
+                  <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-primary" style="text-decoration:none; border-radius:14px; font-weight:900;">
+                    View Trainer
+                  </a>
+                {% endif %}
+              </div>
+
+              {% if trainer %}
+                <div style="
+                  margin-top: 12px;
+                  display:grid;
+                  grid-template-columns: 160px 1fr;
+                  gap: 14px;
+                  align-items: start;
+                ">
+                  <div style="
+                    width: 160px; height: 160px;
+                    border-radius: 18px;
+                    border: 1px solid rgba(255,255,255,.10);
+                    background: rgba(0,0,0,.18);
+                    overflow:hidden;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                  ">
+                    {% if trainer.photo %}
+                      <img src="{{ trainer.photo.url }}" alt="Trainer Photo" style="width:100%;height:100%;object-fit:cover;display:block;">
+                    {% else %}
+                      <div style="color: rgba(255,255,255,.75); font-weight:900;">No photo</div>
+                    {% endif %}
+                  </div>
+
+                  <div style="
+                    border-radius: 16px;
+                    border: 1px solid rgba(255,255,255,.10);
+                    background: rgba(0,0,0,.18);
+                    padding: 1rem 1rem;
+                  ">
+                    <div style="color:#FFD700; font-weight:900; font-size:1.25rem; margin-bottom:6px;">
+                      {{ trainer.name }}
+                    </div>
+                    <div style="color: rgba(255,255,255,.85); line-height:1.75;">
+                      {{ trainer.description }}
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <div style="
+                  margin-top: 12px;
+                  border-radius: 16px;
+                  border: 1px solid rgba(245,158,11,.25);
+                  background: rgba(245,158,11,.10);
+                  color: rgba(255,255,255,.92);
+                  padding: 12px 14px;
+                  line-height:1.6;
+                  font-weight:700;
+                ">
+                  No trainer assigned to this program yet.
+                </div>
+              {% endif %}
+            </div>
+
+          {% else %}
+
+            {# No membership CTA #}
+            <div style="
+              grid-column: span 12;
+              border-radius: 18px;
+              border: 1px solid rgba(245,158,11,.25);
+              background: rgba(245,158,11,.10);
+              padding: 1.2rem 1.2rem;
+              line-height:1.7;
+              color: rgba(255,255,255,.92);
+            ">
+              <div style="font-weight:900; font-size:1.1rem; margin-bottom:6px;">Membership</div>
+              <div style="color: rgba(255,255,255,.85);">
+                You don't have an active membership. Pick a program and start your grind.
+              </div>
+
+              <div style="margin-top: 12px; display:flex; gap: 10px; flex-wrap:wrap;">
+                <a href="{% url 'training_programs' %}" class="btn btn-primary" style="text-decoration:none; border-radius:14px; font-weight:900;">
+                  Choose a program
+                </a>
+                <a href="{% url 'community' %}" class="btn price__btn" style="text-decoration:none; border-radius:14px;">
+                  Check community
+                </a>
+              </div>
+            </div>
+
+          {% endif %}
+
+        </div>
+
+      </div>
+    </section>
+
+    <style>
+      @media (max-width: 900px) {
+        .profile-grid-fix { grid-template-columns: 1fr !important; }
+      }
+    </style>
+
+  </div>
+</div>
+
 {% endblock %}

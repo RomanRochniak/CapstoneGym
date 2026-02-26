@@ -1,24 +1,137 @@
 {% extends "gym/layout.html" %}
+{% load static %}
 
-{% block title %}Edit Profile{% endblock %}
+{% block title %}Edit Profile - RoshaClub{% endblock %}
 
 {% block content %}
-<section class="section__container">
-    <h2>Edit Your Profile</h2>
+<div style="
+  background:
+    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+  min-height: 100vh;
+  padding: 4.2rem 1rem 3rem;
+">
 
-    <form method="POST">
-        {% csrf_token %}
-        
-        <label for="first_name">First Name:</label>
-        <input type="text" name="first_name" id="first_name" value="{{ user.first_name }}" required>
-        
-        <label for="last_name">Last Name:</label>
-        <input type="text" name="last_name" id="last_name" value="{{ user.last_name }}" required>
-        
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" value="{{ user.email }}" required>
-        
-        <button type="submit" class="btn">Save Changes</button>
-    </form>
-</section>
+  <div style="max-width: 760px; margin: 0 auto;">
+    <div style="
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      overflow: hidden;
+    ">
+      <div style="padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(255,255,255,.08);">
+        <div style="
+          display:inline-flex;
+          align-items:center;
+          gap:.6rem;
+          padding:.45rem .8rem;
+          border-radius:999px;
+          border:1px solid rgba(255,215,0,.22);
+          background:rgba(0,0,0,.22);
+          color:rgba(255,215,0,.95);
+          font-weight:800;
+          letter-spacing:.3px;
+          margin-bottom: 1rem;
+        ">
+          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
+          Profile Settings
+        </div>
+
+        <h2 style="margin:0; color:#fff; font-weight: 900; font-size: 2rem; line-height:1.1;">
+          Edit your profile
+        </h2>
+        <p style="margin:.55rem 0 0; color: rgba(255,255,255,.72); line-height: 1.7;">
+          Keep it clean. These details show up on your profile.
+        </p>
+      </div>
+
+      <div style="padding: 1.6rem;">
+        <form method="POST" style="margin:0;">
+          {% csrf_token %}
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label for="first_name" style="color: rgba(255,255,255,.85); font-weight: 700; margin-bottom: 6px; display:block;">
+                First name
+              </label>
+              <input
+                type="text"
+                name="first_name"
+                id="first_name"
+                value="{{ user.first_name }}"
+                placeholder="Your first name"
+                style="
+                  width:100%;
+                  padding: 12px 14px;
+                  border-radius: 14px;
+                  border: 1px solid rgba(255,255,255,.12);
+                  background: rgba(0,0,0,.18);
+                  color: rgba(255,255,255,.88);
+                  outline: none;
+                "
+              >
+            </div>
+
+            <div>
+              <label for="last_name" style="color: rgba(255,255,255,.85); font-weight: 700; margin-bottom: 6px; display:block;">
+                Last name
+              </label>
+              <input
+                type="text"
+                name="last_name"
+                id="last_name"
+                value="{{ user.last_name }}"
+                placeholder="Your last name"
+                style="
+                  width:100%;
+                  padding: 12px 14px;
+                  border-radius: 14px;
+                  border: 1px solid rgba(255,255,255,.12);
+                  background: rgba(0,0,0,.18);
+                  color: rgba(255,255,255,.88);
+                  outline: none;
+                "
+              >
+            </div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <label for="email" style="color: rgba(255,255,255,.85); font-weight: 700; margin-bottom: 6px; display:block;">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              value="{{ user.email }}"
+              placeholder="name@example.com"
+              required
+              style="
+                width:100%;
+                padding: 12px 14px;
+                border-radius: 14px;
+                border: 1px solid rgba(255,255,255,.12);
+                background: rgba(0,0,0,.18);
+                color: rgba(255,255,255,.88);
+                outline: none;
+              "
+            >
+          </div>
+
+          <div style="display:flex; gap: 10px; justify-content:flex-end; margin-top: 18px; flex-wrap:wrap;">
+            <a href="{% url 'profile' %}" class="btn price__btn" style="text-decoration:none;">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary" style="min-width: 170px; border-radius: 14px;">
+              Save changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
 {% endblock %}

@@ -13,12 +13,12 @@
         <p>
             Unlock your hidden superpowers! Join us in "Get Your Body Into Shape" and see how you can change — in ways you never imagined!
         </p>
-        <a href="{% url 'register' %}">
-        <button class="btn">Let’s Start!</button>
+
+        <a href="{% url 'join' %}">
+            <button class="btn">Let’s Start!</button>
         </a>
-    </div> 
-    <div class="header__image">
     </div>
+    <div class="header__image"></div>
 </header>
 
 <section class="section__container explore__container">
@@ -57,7 +57,6 @@
     </div>
 </section>
 
-
 <section class="section__container class__container fade-in-fog">
     <div class="class__image">
         <span class="bg__blur"></span>
@@ -69,7 +68,8 @@
         <p>
             Imagine a workout so amazing you won’t even notice how you're stepping out of your comfort zone.
         </p>
-        <a href="{% url 'register' %}">
+
+        <a href="{% url 'join' %}">
             <button class="btn">Sign Up for a Training Session (if you're ready)</button>
         </a>
     </div>
@@ -113,23 +113,18 @@
     <p class="section__subheader">
         Choose your plan. We promise we won’t charge you as much as a gym membership. And certainly not as much as you spend on coffee daily.
     </p>
+
     <div class="price__grid">
         {% for program in programs %}
-            <form action="{% url 'process_payment' program_id=program.id %}" method="post">
-                {% csrf_token %} 
-                <div class="price__card">
-                    <div class="price__card__content">
-                        <h4>{{ program.name }}</h4>
-                        <h3>${{ program.price }}</h3>
-                        <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
-                    </div>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'training_programs' %}" class="btn price__btn">Join Now</a>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn price__btn">Join Now</a>
-                    {% endif %}
+            <div class="price__card">
+                <div class="price__card__content">
+                    <h4>{{ program.name }}</h4>
+                    <h3>${{ program.price }}</h3>
+                    <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
                 </div>
-            </form>
+
+                <a href="{% url 'join' %}" class="btn price__btn">Join Now</a>
+            </div>
         {% endfor %}
     </div>
 </section>

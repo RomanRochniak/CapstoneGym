@@ -1,69 +1,220 @@
-{% extends 'gym/layout.html' %}
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block title %}Payment - RoshaClub{% endblock %}
+
 {% block content %}
 
-<h1>Pay for Training Program</h1>
+<div style="
+  background:
+    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+  min-height: 100vh;
+  padding: 4.2rem 1rem 3rem;
+">
 
-<h2>{{ program.name }}</h2>
-<p>{{ program.description }}</p>
-<p>Price: ${{ program.price }}</p>
+  <div style="max-width: 920px; margin: 0 auto;">
+    <div style="
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      overflow: hidden;
+    ">
+      {# Header #}
+      <div style="padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(255,255,255,.08);">
+        <div style="
+          display:inline-flex;
+          align-items:center;
+          gap:.6rem;
+          padding:.45rem .8rem;
+          border-radius:999px;
+          border:1px solid rgba(255,215,0,.22);
+          background:rgba(0,0,0,.22);
+          color:rgba(255,215,0,.95);
+          font-weight:800;
+          letter-spacing:.3px;
+          margin-bottom: 1rem;
+        ">
+          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
+          Secure Checkout
+        </div>
 
-{% if error_message %}
-    <div class="error-message">
-        <p style="color: red;">{{ error_message }}</p>
+        <h2 style="margin:0; color:#fff; font-weight: 900; font-size: 2rem; line-height:1.1;">
+          Pay for Training Program
+        </h2>
+        <p style="margin:.55rem 0 0; color: rgba(255,255,255,.72); line-height: 1.7;">
+          Complete your payment securely with Stripe. No card data is stored on our server.
+        </p>
+      </div>
+
+      {# Body #}
+      <div style="padding: 1.6rem; display:grid; grid-template-columns: 1.1fr .9fr; gap: 16px;">
+
+        {# Program summary #}
+        <div style="
+          border-radius: 16px;
+          border: 1px solid rgba(255,255,255,.10);
+          background: rgba(0,0,0,.18);
+          padding: 1.2rem 1.2rem;
+        ">
+          <div style="color: rgba(255,215,0,.95); font-weight: 900; font-size: 1.2rem; margin-bottom: .3rem;">
+            {{ program.name }}
+          </div>
+          <div style="color: rgba(255,255,255,.78); line-height: 1.7;">
+            {{ program.description }}
+          </div>
+
+          <div style="
+            margin-top: 1rem;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding: .9rem 1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.03);
+          ">
+            <span style="color: rgba(255,255,255,.8); font-weight: 700;">Total</span>
+            <span style="color:#fff; font-weight: 900; font-size: 1.35rem;">
+              ${{ program.price }}
+            </span>
+          </div>
+
+          <div style="margin-top: 12px; color: rgba(255,255,255,.60); font-size:.95rem; line-height:1.6;">
+            Tip: use Stripe test card <b style="color:#fff;">4242 4242 4242 4242</b>, any future date, any CVC.
+          </div>
+
+          <div style="margin-top: 14px;">
+            <a href="{% url 'training_programs' %}" class="btn price__btn" style="text-decoration:none;">
+              Back to programs
+            </a>
+          </div>
+        </div>
+
+        {# Payment form #}
+        <div style="
+          border-radius: 16px;
+          border: 1px solid rgba(255,255,255,.10);
+          background: rgba(0,0,0,.18);
+          padding: 1.2rem 1.2rem;
+        ">
+
+          {# If Stripe key is missing -> show a clean disabled state #}
+          {% if not stripe_public_key %}
+            <div style="
+              padding: 12px 14px;
+              border-radius: 14px;
+              background: rgba(245,158,11,.12);
+              border: 1px solid rgba(245,158,11,.25);
+              color: rgba(255,255,255,.9);
+              line-height:1.6;
+            ">
+              Payments are not configured on this environment.<br>
+              Add <b style="color:#fff;">STRIPE_PUBLIC_KEY</b> and <b style="color:#fff;">STRIPE_SECRET_KEY</b> to your <code>.env</code>.
+            </div>
+          {% else %}
+
+            <form action="{% url 'payments' %}?program_id={{ program_id }}" method="post" id="payment-form" style="margin:0;">
+              {% csrf_token %}
+
+              <label style="color: rgba(255,255,255,.85); font-weight: 800; margin-bottom: 8px; display:block;">
+                Card details
+              </label>
+
+              <div id="card-element" style="
+                padding: 12px 14px;
+                border-radius: 14px;
+                border: 1px solid rgba(255,255,255,.12);
+                background: rgba(255,255,255,.04);
+              "></div>
+
+              <div id="card-errors" role="alert" style="
+                margin-top: 10px;
+                color: rgba(239,68,68,.95);
+                font-weight: 700;
+                min-height: 20px;
+              "></div>
+
+              <button type="submit" id="pay-btn" class="btn btn-primary" style="
+                width:100%;
+                border-radius: 14px;
+                padding: .85rem 1rem;
+                font-weight: 900;
+                margin-top: 10px;
+              ">
+                Submit Payment
+              </button>
+
+              <div style="margin-top: 10px; color: rgba(255,255,255,.60); font-size:.92rem; line-height:1.6;">
+                By paying, you agree to the club rules and understand this is a training program purchase (not medical service).
+              </div>
+            </form>
+
+          {% endif %}
+        </div>
+      </div>
     </div>
-{% endif %}
+  </div>
 
-<form action="{% url 'payments' %}?program_id={{ program_id }}" method="post" id="payment-form">
-    {% csrf_token %}
-    <div id="card-element"></div>
-    <div id="card-errors" role="alert"></div>
-    <button type="submit">Submit Payment</button>
-</form>
+</div>
 
-<!-- Stripe.js -->
-<script src="https://js.stripe.com/v3/"></script>
+{% if stripe_public_key %}
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
 
-<script>
-const stripe = Stripe('{{ stripe_public_key }}');
-const elements = stripe.elements();
-const style = {
-    base: {
-        color: "#32325d",
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+  <script>
+    const stripe = Stripe('{{ stripe_public_key }}');
+    const elements = stripe.elements();
+
+    const style = {
+      base: {
+        color: "#ffffff",
+        fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
         fontSmoothing: "antialiased",
         fontSize: "16px",
-        "::placeholder": {
-            color: "#aab7c4"
-        }
-    }
-};
-const card = elements.create('card', { style: style });
-card.mount('#card-element');
+        "::placeholder": { color: "rgba(255,255,255,.55)" }
+      },
+      invalid: { color: "#ef4444" }
+    };
 
-card.on('change', function(event) {
-    const errorDiv = document.getElementById('card-errors');
-    if (event.error) {
-        errorDiv.textContent = event.error.message;
-    } else {
-        errorDiv.textContent = '';
-    }
-});
+    const card = elements.create('card', { style });
+    card.mount('#card-element');
 
-const form = document.getElementById('payment-form');
-form.addEventListener('submit', async function(event) {
-    event.preventDefault();
-    const { token, error } = await stripe.createToken(card);
-    if (error) {
+    card.on('change', function(event) {
+      const errorDiv = document.getElementById('card-errors');
+      errorDiv.textContent = event.error ? event.error.message : '';
+    });
+
+    const form = document.getElementById('payment-form');
+    const btn = document.getElementById('pay-btn');
+
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      btn.disabled = true;
+      const oldText = btn.textContent;
+      btn.textContent = 'Processing...';
+
+      const { token, error } = await stripe.createToken(card);
+
+      if (error) {
         document.getElementById('card-errors').textContent = error.message;
-    } else {
-        const hiddenInput = document.createElement('input');
-        hiddenInput.setAttribute('type', 'hidden');
-        hiddenInput.setAttribute('name', 'stripeToken');
-        hiddenInput.setAttribute('value', token.id);
-        form.appendChild(hiddenInput);
-        form.submit();
-    }
-});
-</script>
+        btn.disabled = false;
+        btn.textContent = oldText;
+        return;
+      }
+
+      const hiddenInput = document.createElement('input');
+      hiddenInput.setAttribute('type', 'hidden');
+      hiddenInput.setAttribute('name', 'stripeToken');
+      hiddenInput.setAttribute('value', token.id);
+      form.appendChild(hiddenInput);
+
+      form.submit();
+    });
+  </script>
+{% endif %}
 
 {% endblock %}

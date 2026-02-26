@@ -5,45 +5,149 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
-    
-    
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="{% static 'gym/styles.css' %}" />
     <title>{% block title %}RoshaClub{% endblock %}</title>
+
+    <style>
+        /* Minimal toast styling (popup bottom-right) */
+        .toast-stack {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast-item {
+            min-width: 260px;
+            max-width: 360px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: #fff;
+            background: rgba(25, 25, 25, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            transform: translateY(8px);
+            opacity: 0;
+            transition: all .25s ease;
+        }
+
+        .toast-item.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-text {
+            line-height: 1.25;
+            font-size: 14px;
+        }
+
+        .toast-close {
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            line-height: 1;
+            padding: 0;
+            margin-top: -2px;
+        }
+
+        .toast-close:hover {
+            color: #fff;
+        }
+
+        /* Optional: color hint by tag */
+        .toast-success { border-left: 4px solid #22c55e; }
+        .toast-error { border-left: 4px solid #ef4444; }
+        .toast-warning { border-left: 4px solid #f59e0b; }
+        .toast-info { border-left: 4px solid #3b82f6; }
+
+        /* AI Drawer small polish */
+        #aiMsgs::-webkit-scrollbar { width: 10px; }
+        #aiMsgs::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 999px; }
+    </style>
 </head>
+
 <body>
-    <nav>
+    <nav class="rc-nav">
         <div class="nav__logo">
-            <a href="#"><img src="{% static 'gym/assets/logo1.PNG' %}" alt="logo" /></a>
+            <a href="{% url 'index' %}">
+                <img src="{% static 'gym/assets/logo1.PNG' %}" alt="logo" />
+            </a>
         </div>
 
         <ul class="nav__links">
             <li class="link"><a href="{% url 'index' %}">Home</a></li>
+
             <li class="link">
                 {% if user.is_authenticated %}
                     <a href="{% url 'training_programs' %}">Training Program</a>
                 {% else %}
-                    <a href="{% url 'login' %}">Training Program</a>
+                    <a href="{% url 'join' %}">Training Program</a>
                 {% endif %}
             </li>
+
             <li class="link"><a href="{% url 'about_us' %}">About Us</a></li>
-            <li class="link"><a href="{% url 'community' %}">Community</a></li>
+
+            <li class="link">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'community' %}">Community</a>
+                {% else %}
+                    <a href="{% url 'join' %}">Community</a>
+                {% endif %}
+            </li>
+
             {% if user.is_authenticated %}
                 <li class="link nav__username">
                     <a href="{% url 'profile' %}">Welcome, {{ user.username }}</a>
                 </li>
-                <li class="link "><a href="{% url 'logout' %}" class="auth-btn logout-btn">Logout</a></li>
+                <li class="link">
+                    <a href="{% url 'logout' %}" class="auth-btn logout-btn">Logout</a>
+                </li>
             {% else %}
-                <li class="link"><a href="{% url 'login' %}" class="auth-btn login-btn">Login</a></li>
+                <li class="link">
+                    <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                </li>
             {% endif %}
         </ul>
     </nav>
 
+    {# Toast messages #}
+    {% if messages %}
+        <div class="toast-stack" id="toastStack">
+            {% for message in messages %}
+                {% if message.tags %}
+                    {% with tag=message.tags %}
+                        <div class="toast-item toast-{{ tag }} js-toast">
+                            <div class="toast-text">{{ message }}</div>
+                            <button class="toast-close js-toast-close" type="button" aria-label="Close">&times;</button>
+                        </div>
+                    {% endwith %}
+                {% else %}
+                    <div class="toast-item toast-info js-toast">
+                        <div class="toast-text">{{ message }}</div>
+                        <button class="toast-close js-toast-close" type="button" aria-label="Close">&times;</button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
 
-    <footer class="footer">
+    <footer class="footer rc-footer">
         <div class="footer__content">
             <div class="footer__links">
                 <div class="footer__social">
@@ -56,12 +160,237 @@
         </div>
     </footer>
 
+    {# ===== AI ASSISTANT (FAB + DRAWER) ===== #}
+    {% if user.is_authenticated %}
+        <div id="aiFab" style="position: fixed; right: 22px; bottom: 22px; z-index: 9998;">
+            <button type="button" class="btn price__btn" style="border-radius: 999px; padding:.85rem 1.05rem; font-weight:900;">
+                Assistant
+            </button>
+        </div>
+    {% else %}
+        <div id="aiFab" style="position: fixed; right: 22px; bottom: 22px; z-index: 9998;">
+            <a href="{% url 'login' %}" class="btn price__btn" style="border-radius: 999px; padding:.85rem 1.05rem; font-weight:900; text-decoration:none;">
+                Assistant
+            </a>
+        </div>
+    {% endif %}
+
+    <div id="aiDrawerOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9998;"></div>
+
+    <aside id="aiDrawer" style="
+        position: fixed;
+        top: 0; right: 0;
+        height: 100vh;
+        width: min(420px, 92vw);
+        transform: translateX(110%);
+        transition: transform .22s ease;
+        z-index: 9999;
+
+        background:
+            radial-gradient(900px 280px at 15% 40%, rgba(255,215,0,.10), transparent 60%),
+            radial-gradient(900px 280px at 85% 30%, rgba(249,172,84,.12), transparent 55%),
+            linear-gradient(180deg, rgba(12,12,14,.96), rgba(7,7,9,.98));
+        border-left: 1px solid rgba(255,255,255,.10);
+        box-shadow: -18px 0 40px rgba(0,0,0,.45);
+        display:flex;
+        flex-direction:column;
+    ">
+        <div style="padding: 16px 16px; border-bottom:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div>
+                <div style="color:#fff; font-weight:900;">RoshaClub Assistant</div>
+                <div style="color:rgba(255,255,255,.7); font-size:.92rem;">Motivation • Guidance • Site help</div>
+            </div>
+            <button id="aiClose" type="button" aria-label="Close" style="background:transparent;border:none;color:#fff;font-size:22px;line-height:1;opacity:.85;padding:0 6px;">×</button>
+        </div>
+
+        <div id="aiMsgs" style="padding: 14px 14px; overflow:auto; flex:1; display:flex; flex-direction:column; gap:10px;"></div>
+
+        <div style="padding: 12px 12px; border-top:1px solid rgba(255,255,255,.08);">
+            {% if user.is_authenticated %}
+                <form id="aiForm" style="display:flex; gap:10px; margin:0;">
+                    <input id="aiInput" type="text" placeholder="Ask about programs, motivation, trainers..."
+                        style="flex:1;padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.20);color:rgba(255,255,255,.9);outline:none;">
+                    <button class="btn btn-primary" type="submit" style="border-radius:14px; font-weight:900;">Send</button>
+                </form>
+                <div style="margin-top:8px;color:rgba(255,255,255,.55);font-size:.85rem;line-height:1.4;">
+                    No medical advice. For personalized plans or injuries — contact a real trainer.
+                </div>
+            {% else %}
+                <div style="padding: 12px 12px;border-radius: 14px;border: 1px solid rgba(255,255,255,.10);background: rgba(255,255,255,.04);color: rgba(255,255,255,.85);line-height: 1.6;">
+                    Login required to use the assistant.
+                    <div style="margin-top:10px;">
+                        <a href="{% url 'login' %}" class="btn btn-primary" style="border-radius:14px; font-weight:900; text-decoration:none;">Login</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </aside>
+
     <!-- jQuery and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZFJ5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
-    <script src="{% static 'gym/script.js' %}" ></script>
-    <script src="{% static 'gym/google-pay.js' %}" ></script>
+    <script>
+        // Show and auto-hide toasts
+        (function () {
+            const toasts = document.querySelectorAll('.js-toast');
+            toasts.forEach((t) => {
+                requestAnimationFrame(() => t.classList.add('show'));
+
+                const timer = setTimeout(() => {
+                    t.classList.remove('show');
+                    setTimeout(() => t.remove(), 250);
+                }, 2800);
+
+                const btn = t.querySelector('.js-toast-close');
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        clearTimeout(timer);
+                        t.classList.remove('show');
+                        setTimeout(() => t.remove(), 250);
+                    });
+                }
+            });
+        })();
+    </script>
+
+    <script>
+        (function(){
+            const drawer = document.getElementById("aiDrawer");
+            const overlay = document.getElementById("aiDrawerOverlay");
+            const closeBtn = document.getElementById("aiClose");
+            const fab = document.getElementById("aiFab");
+            const form = document.getElementById("aiForm");
+            const input = document.getElementById("aiInput");
+            const msgs = document.getElementById("aiMsgs");
+
+            if (!drawer || !overlay || !closeBtn || !fab || !msgs) return;
+
+            let sessionId = null;
+            let isSending = false;
+
+            function openDrawer(){
+                drawer.style.transform = "translateX(0)";
+                overlay.style.display = "block";
+                setTimeout(() => input?.focus(), 60);
+
+                if (!msgs.dataset.inited) {
+                    msgs.dataset.inited = "1";
+                    addBubble("Ask me about programs, motivation, or which trainer fits your goal.", "ai");
+                }
+            }
+
+            function closeDrawer(){
+                drawer.style.transform = "translateX(110%)";
+                overlay.style.display = "none";
+            }
+
+            const btn = fab.querySelector("button");
+            if (btn) btn.addEventListener("click", openDrawer);
+
+            overlay.addEventListener("click", closeDrawer);
+            closeBtn.addEventListener("click", closeDrawer);
+
+            function addBubble(text, who){
+                const el = document.createElement("div");
+                el.style.maxWidth = "85%";
+                el.style.padding = "10px 12px";
+                el.style.borderRadius = "14px";
+                el.style.border = "1px solid rgba(255,255,255,.10)";
+                el.style.background = (who === "me") ? "rgba(255,215,0,.10)" : "rgba(255,255,255,.04)";
+                el.style.color = "rgba(255,255,255,.92)";
+                el.style.alignSelf = (who === "me") ? "flex-end" : "flex-start";
+                el.style.whiteSpace = "pre-wrap";
+                el.textContent = text;
+
+                msgs.appendChild(el);
+                msgs.scrollTop = msgs.scrollHeight;
+            }
+
+            function setTyping(on){
+                let t = document.getElementById("aiTyping");
+                if (on) {
+                    if (t) return;
+                    t = document.createElement("div");
+                    t.id = "aiTyping";
+                    t.style.maxWidth = "85%";
+                    t.style.padding = "10px 12px";
+                    t.style.borderRadius = "14px";
+                    t.style.border = "1px solid rgba(255,255,255,.10)";
+                    t.style.background = "rgba(255,255,255,.04)";
+                    t.style.color = "rgba(255,255,255,.75)";
+                    t.style.alignSelf = "flex-start";
+                    t.textContent = "Typing…";
+                    msgs.appendChild(t);
+                    msgs.scrollTop = msgs.scrollHeight;
+                } else {
+                    if (t) t.remove();
+                }
+            }
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            async function sendMessage(text){
+                if (isSending) return;
+                isSending = true;
+                setTyping(true);
+
+                try{
+                    const res = await fetch("{% url 'ai_chat_api' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                        body: JSON.stringify({ message: text, session_id: sessionId }),
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok){
+                        addBubble(data.error || "AI error. Try again.", "ai");
+                        return;
+                    }
+
+                    sessionId = data.session_id;
+                    addBubble(data.response, "ai");
+                } catch (e){
+                    addBubble("Network error. Try again.", "ai");
+                } finally {
+                    setTyping(false);
+                    isSending = false;
+                }
+            }
+
+            if (form) {
+                form.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    const text = (input.value || "").trim();
+                    if (!text) return;
+
+                    addBubble(text, "me");
+                    input.value = "";
+                    await sendMessage(text);
+                });
+            }
+        })();
+    </script>
+
+    <script src="{% static 'gym/script.js' %}"></script>
+    <script src="{% static 'gym/google-pay.js' %}"></script>
 </body>
 </html>

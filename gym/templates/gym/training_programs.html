@@ -4,99 +4,243 @@
 {% block title %}Training Programs - RoshaClub{% endblock %}
 
 {% block content %}
-<section class="section__container trainers__container">
-    <h2 class="section__header">Meet Our Elite Trainers</h2>
-    <p class="section__subheader">Highly qualified and dedicated to your success.</p>
-    <div class="team__grid">  
-        {% for trainer in trainers %}
-            <div class="team__member">
-                <div class="team__member-image"> <!-- Image container for easier styling -->
-                    {% if trainer.photo %}
-                        <img src="{{ trainer.photo.url }}" alt="{{ trainer.name }}" class="team__photo" />
-                    {% else %}
-                        <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" /> 
-                    {% endif %}
-                </div>
-                <div class="team__member-info">
-                    <h3 class="team__name">{{ trainer.name }}</h3>
-                    <p class="team__role">{{ trainer.specialization }}</p>
-                    <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
-                </div>
 
-            </div>
-        {% endfor %}
-    </div>
-</section>
+<div style="
+  background:
+    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+">
 
-
-<section class="section__container join__container">
-    <h2 class="section__header">Why Join Our Training Programs?</h2>
-    <p class="section__subheader">
-        Our training programs are designed to help you reach your fitness goals faster. Whether you want to lose weight, build muscle, or improve your endurance, we have the perfect program for you.
-    </p>
-    <div class="join__image fade-in-fog">
-        <img class="join__img" src="{% static 'gym/assets/joinus.jpg' %}" alt="Join Us" />
-        <div class="join__grid">
-            <div class="join__card">
-                <span><i class="ri-user-star-fill"></i></span>
-                <div class="join__card__content">
-                    <h4>Expert Trainers</h4>
-                    <p>Our trainers are experienced and passionate about helping you achieve your goals. You'll be guided every step of the way.</p>
-                </div>
-            </div>
-            <div class="join__card">
-                <span><i class="ri-vidicon-fill"></i></span>
-                <div class="join__card__content">
-                    <h4>Variety of Classes</h4>
-                    <p>We offer a variety of training programs, so you never get bored and always stay challenged.</p>
-                </div>
-            </div>
-            <div class="join__card">
-                <span><i class="ri-building-line"></i></span>
-                <div class="join__card__content">
-                    <h4>Top-Notch Facilities</h4>
-                    <p>Our gym is equipped with state-of-the-art equipment and designed to make your fitness journey as enjoyable as possible.</p>
-                </div>
-            </div>
+{# HERO #}
+<section style="padding: 4.5rem 1rem 2.5rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div style="
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 1.5rem;
+      flex-wrap:wrap;
+    ">
+      <div class="tp-left" style="max-width: 720px;">
+        <div class="tp-fade" style="
+          display:inline-flex;
+          align-items:center;
+          gap:.6rem;
+          padding:.45rem .8rem;
+          border-radius:999px;
+          border:1px solid rgba(255,215,0,.22);
+          background:rgba(0,0,0,.22);
+          color:rgba(255,215,0,.95);
+          font-weight:800;
+          letter-spacing:.3px;
+          margin-bottom: 1.2rem;
+        ">
+          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
+          Training Programs • Choose your path
         </div>
+
+        <h1 class="tp-fade" style="font-size: 3.1rem; line-height: 1.1; font-weight: 900; color:#fff; margin-bottom: .9rem;">
+          Train with <span style="color:#FFD700;">elite coaches</span> <br/>
+          and follow a plan that actually <span style="color:#f9ac54;">works</span>.
+        </h1>
+
+        <p class="tp-fade" style="color: rgba(255,255,255,.78); line-height:1.75; font-size: 1.05rem;">
+          Pick a program, get guidance from a coach, and stay consistent.
+          No fluff — just structure and results.
+        </p>
+
+        <div class="tp-fade" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.5rem;">
+          <a href="#programs" class="btn" style="text-decoration:none;">View Programs</a>
+          <a href="#coaches" class="btn price__btn" style="text-decoration:none;">Meet Coaches</a>
+        </div>
+      </div>
+
+      <div class="tp-right" style="flex:1; min-width: 320px; max-width: 520px;">
+        <div style="
+          border-radius: 18px;
+          overflow:hidden;
+          border: 1px solid rgba(255,255,255,.10);
+          box-shadow: 0 18px 40px rgba(0,0,0,.45);
+          background: rgba(255,255,255,.03);
+        ">
+          <div style="position:relative;">
+            <img src="{% static 'gym/assets/joinus.jpg' %}" alt="Training" style="width:100%; height: 320px; object-fit:cover;">
+            <div style="position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.70));"></div>
+            <div style="position:absolute; left:18px; bottom:14px;">
+              <div style="color:#fff; font-weight:900; font-size:1.05rem;">Consistency is the program</div>
+              <div style="color:rgba(255,255,255,.75);">Choose → Commit → Progress</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    {# quick perks strip #}
+    <div style="
+      margin-top: 2.2rem;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.2rem;
+    ">
+      <div class="price__card tp-fade" style="padding: 1.2rem 1.2rem;">
+        <div class="price__card__content" style="margin-bottom:0;">
+          <h4 style="margin-bottom:.4rem;">01. Clear Structure</h4>
+          <p style="margin-bottom:0;">A plan you can follow. No guessing. No chaos.</p>
+        </div>
+      </div>
+      <div class="price__card tp-fade" style="padding: 1.2rem 1.2rem;">
+        <div class="price__card__content" style="margin-bottom:0;">
+          <h4 style="margin-bottom:.4rem;">02. Real Coaches</h4>
+          <p style="margin-bottom:0;">Guidance and accountability when you need it.</p>
+        </div>
+      </div>
+      <div class="price__card tp-fade" style="padding: 1.2rem 1.2rem;">
+        <div class="price__card__content" style="margin-bottom:0;">
+          <h4 style="margin-bottom:.4rem;">03. Results Mindset</h4>
+          <p style="margin-bottom:0;">Show up, train hard, recover — repeat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
+{# COACHES #}
+<section id="coaches" class="section__container trainers__container" style="padding-top: 2.5rem;">
+  <h2 class="section__header tp-fade">Meet Our Elite Coaches</h2>
+  <p class="section__subheader tp-fade">Highly qualified and dedicated to your success.</p>
 
-<section class="section__container price__container">
-    <h2 class="section__header">Prices (We’re Cheaper Than a Doctor)</h2>
-    <p class="section__subheader">
-        Choose your plan. We promise we won’t charge you as much as a gym membership. And certainly not as much as you spend on coffee daily.
-    </p>
-    <div class="price__grid">
-        {% for program in programs %}
-            <form action="{% url 'process_payment' program_id=program.id %}" method="post">
-                {% csrf_token %} 
-                <div class="price__card">
-                    <div class="price__card__content">
-                        <h4>{{ program.name }}</h4>
-                        <h3>${{ program.price }}</h3>
-                        <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
+  <div class="team__grid" style="margin-top: 2.2rem;">
+    {% for trainer in trainers %}
+      <div class="team__member tp-fade">
+        <div class="team__member-image">
+          {% if trainer.photo %}
+            <img src="{{ trainer.photo.url }}" alt="{{ trainer.name }}" class="team__photo" />
+          {% else %}
+            <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" />
+          {% endif %}
+        </div>
 
-                        {% if program.trainer %}  
-                            <p>Trainer: {{ program.trainer.name }}</p>
-                        {% elif program.trainers.all %} 
-                            <p>Trainers: 
-                                {% for trainer in program.trainers.all %}
-                                    {{ trainer.name }}{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-
-                    </div>
-                    <a href="{% url 'payments' %}?program_id={{ program.id }}" class="btn price__btn">
-                        Pay for {{ program.name }}
-                    </a>
-                    <div id="google-pay-button-container"></div>
-                </div>
-            </form>
-        {% endfor %}
-    </div>
+        <div class="team__member-info">
+          <h3 class="team__name">{{ trainer.name }}</h3>
+          <p class="team__role">{{ trainer.specialization }}</p>
+          <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 </section>
+
+{# PROGRAMS #}
+<section id="programs" class="section__container price__container" style="padding-top: 2.5rem;">
+  <h2 class="section__header tp-fade">Programs & Pricing</h2>
+  <p class="section__subheader tp-fade">
+    Choose your plan. Simple, clear, and focused on progress.
+  </p>
+
+  <div class="price__grid" style="margin-top: 2.6rem;">
+    {% for program in programs %}
+      <div class="price__card tp-fade" id="program-{{ program.id }}">
+        <div class="price__card__content">
+          <h4>{{ program.name }}</h4>
+          <h3>${{ program.price }}</h3>
+
+          <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
+
+          {% if program.trainer %}
+            <p><i class="ri-user-star-fill"></i> Coach: {{ program.trainer.name }}</p>
+          {% endif %}
+        </div>
+
+        <a href="{% url 'payments' %}?program_id={{ program.id }}" class="btn price__btn">
+          Pay for {{ program.name }}
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{# CTA #}
+<section class="cta tp-fade" style="margin-bottom: 0; padding-bottom: 3.5rem;">
+  <h2 class="cta__header">Ready to start?</h2>
+  <p class="cta__text">
+    Pick a program, commit for 30 days, and you’ll feel the difference.
+  </p>
+  <a href="{% url 'join' %}" class="btn">Join Us Now</a>
+</section>
+
+</div>
+
+<style>
+  .program-highlight {
+    outline: 2px solid rgba(255, 215, 0, 0.9);
+    box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.15);
+    border-radius: 12px;
+    transition: box-shadow .25s ease, outline .25s ease;
+  }
+
+  /* ===== Training Programs: safe animations (no blank space) ===== */
+  .tp-fade, .tp-left, .tp-right { opacity: 1; transform: none; }
+
+  .tp-ready .tp-fade,
+  .tp-ready .tp-left,
+  .tp-ready .tp-right{
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .55s ease, transform .55s ease;
+    will-change: opacity, transform;
+  }
+  .tp-ready .tp-left{ transform: translateX(-26px); }
+  .tp-ready .tp-right{ transform: translateX(26px); }
+
+  .tp-show{ opacity: 1 !important; transform: translate(0,0) !important; }
+
+  @media (max-width: 980px){
+    section[style*="padding: 4.5rem"] > div > div { flex-direction: column !important; }
+  }
+  @media (max-width: 860px){
+    section[style*="margin-top: 2.2rem"] { grid-template-columns: 1fr !important; }
+  }
+</style>
+
+<script>
+(function () {
+  // highlight program card by query string
+  const params = new URLSearchParams(window.location.search);
+  const highlight = params.get('highlight');
+  if (highlight) {
+    const el = document.getElementById(`program-${highlight}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('program-highlight');
+      setTimeout(() => el.classList.remove('program-highlight'), 3000);
+    }
+  }
+
+  // page-scoped animations (no conflicts with your global script.js)
+  document.addEventListener("DOMContentLoaded", () => {
+    document.documentElement.classList.add("tp-ready");
+
+    const items = Array.from(document.querySelectorAll(".tp-fade, .tp-left, .tp-right"));
+    if (!items.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const i = items.indexOf(el);
+        el.style.transitionDelay = `${Math.min(i * 60, 420)}ms`;
+        el.classList.add("tp-show");
+        obs.unobserve(el);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -10% 0px"
+    });
+
+    items.forEach(el => obs.observe(el));
+  });
+})();
+</script>
 
 {% endblock %}

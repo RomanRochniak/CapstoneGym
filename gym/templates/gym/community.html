@@ -1,86 +1,390 @@
-{% extends "gym/layout.html" %}  {% load static %} 
+{% extends "gym/layout.html" %}
+{% load static %}
+
+{% block title %}Community - RoshaClub{% endblock %}
 
 {% block content %}
-    <h1>Gym Community</h1>
 
-    {% if user.is_authenticated %}
-        <h2>New Post</h2>
-        <form id="new-post-form" action="{% url 'new_post' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <textarea name="content" rows="4" cols="100" placeholder="Share your workout tips..."></textarea><br>
-            Image URL: <input type="url" name="image_url" placeholder="Enter image URL"><br>
-            <input type="submit" value="Post" class="btn btn-primary">
+<div style="
+  background:
+    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+">
+
+{# HERO #}
+<section style="padding: 4.2rem 1rem 2rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div style="
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 1.6rem;
+      flex-wrap:wrap;
+    ">
+      <div class="tp-left" style="max-width: 720px;">
+        <div class="tp-fade" style="
+          display:inline-flex;
+          align-items:center;
+          gap:.6rem;
+          padding:.45rem .8rem;
+          border-radius:999px;
+          border:1px solid rgba(255,215,0,.22);
+          background:rgba(0,0,0,.22);
+          color:rgba(255,215,0,.95);
+          font-weight:800;
+          letter-spacing:.3px;
+          margin-bottom: 1.2rem;
+        ">
+          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
+          Community • Share • Improve
+        </div>
+
+        <h1 class="tp-fade" style="font-size: 3.0rem; line-height: 1.1; font-weight: 900; color:#fff; margin-bottom: .9rem;">
+          Gym Community <span style="color:#FFD700;">—</span> progress is contagious.
+        </h1>
+
+        <p class="tp-fade" style="color: rgba(255,255,255,.78); line-height:1.75; font-size: 1.05rem;">
+          Share tips, routines, wins, and hard lessons. Like posts, help others, and stay locked in.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# NEW POST #}
+{% if user.is_authenticated %}
+<section style="padding: 0 1rem 2rem;">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="tp-fade" style="
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      overflow:hidden;
+    ">
+      <div style="padding: 1.2rem 1.4rem; border-bottom: 1px solid rgba(255,255,255,.08);">
+        <div style="color:#fff; font-weight:900; font-size:1.2rem;">Create a post</div>
+        <div style="color:rgba(255,255,255,.72);">Short and real. Add an image if you want.</div>
+      </div>
+
+      <div style="padding: 1.3rem 1.4rem;">
+        <form id="new-post-form" action="{% url 'new_post' %}" method="post" enctype="multipart/form-data" style="margin:0;">
+          {% csrf_token %}
+
+          <textarea
+            name="content"
+            rows="3"
+            placeholder="Share your workout tips..."
+            style="
+              width:100%;
+              padding: 14px 14px;
+              border-radius: 14px;
+              border: 1px solid rgba(255,255,255,.12);
+              background: rgba(0,0,0,.18);
+              color: rgba(255,255,255,.88);
+              outline: none;
+              resize: vertical;
+              margin-bottom: 12px;
+            "
+          ></textarea>
+
+          <input
+            type="url"
+            name="image_url"
+            placeholder="Optional: paste image URL"
+            style="
+              width:100%;
+              padding: 12px 14px;
+              border-radius: 14px;
+              border: 1px solid rgba(255,255,255,.12);
+              background: rgba(0,0,0,.18);
+              color: rgba(255,255,255,.88);
+              outline: none;
+              margin-bottom: 14px;
+            "
+          >
+
+          <div style="display:flex; justify-content:flex-end;">
+            <button type="submit" class="btn btn-primary" style="width:auto; min-width:160px;">
+              Post
+            </button>
+          </div>
         </form>
-    {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
 
-    <div class="all_posts">
-        {% for post in page_posts %}
-            <div class="post">
-                {% if post.image_url %}
-                    <img src="{{ post.image_url }}" alt="Post Image">
-                {% endif %}
-                <div class="post-content"> 
-                    <div class="row">
-                        <h5 class="username"><a href="{% url 'user_posts' post.user.username %}">@{{ post.user.username }}</a></h5>  
-                        <h6 class="content" id="content_{{ post.id }}">{{ post.content }}</h6>
-                        <p class="date">{{ post.created_at }}</p>
-                        <div class="post-actions">
+{# FEED #}
+<section style="padding: 0 1rem 2.6rem;">
+  <div style="max-width:1200px; margin:0 auto;">
 
-                            {% if user.is_authenticated %}
-                                <button id="like_button_{{ post.id }}"
-                                        class="like-btn {% if post.id in liked_post_ids %}liked{% endif %}"
-                                        onclick="likeHandler({{ post.id }}, {% if post.id in liked_post_ids %}true{% else %}false{% endif %})">
-                                    <i id="like_icon_{{ post.id }}" class="{% if post.id in liked_post_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
-                                    <span id="like_count_{{ post.id }}">{{ post.like_count }}</span>
-                                </button>
-                            {% endif %}
-
-                            {% if user == post.user %}
-                                <button class="edit-btn" data-toggle="modal" data-target="#modal_edit_post_{{ post.id }}">Edit</button>
-
-                                <!-- Delete Button -->
-                                <form action="{% url 'delete_post' post.id %}" method="post" class="delete-form">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-
-                                <!-- Edit Post Modal -->
-                                <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="modal_edit_post_{{ post.id }}_label" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Edit Post</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{ post.content }}</textarea>
-                                                Image URL: <input type="url" id="image_url_{{ post.id }}" class="form-control" name="image_url" value="{{ post.image_url }}">
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button type="button" class="btn btn-primary" onclick="handleSubmit({{ post.id }})">Save changes</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+    <div class="feed-grid">
+      {% for post in page_posts %}
+        <article class="feed-card tp-fade">
+          <header class="feed-head">
+            <div class="feed-user">
+              <a href="{% url 'user_posts' post.user.username %}" class="feed-userlink">@{{ post.user.username }}</a>
+              <span class="feed-dot">•</span>
+              <span class="feed-date">{{ post.created_at }}</span>
             </div>
-        {% endfor %}
+
+            <div class="feed-actions">
+              {% if user.is_authenticated %}
+                <button
+                  id="like_button_{{ post.id }}"
+                  class="like-btn {% if post.id in liked_post_ids %}liked{% endif %}"
+                  onclick="likeHandler({{ post.id }}, {% if post.id in liked_post_ids %}true{% else %}false{% endif %})"
+                  style="border-radius: 12px;"
+                  title="Like"
+                >
+                  <i id="like_icon_{{ post.id }}" class="{% if post.id in liked_post_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                  <span id="like_count_{{ post.id }}">{{ post.like_count }}</span>
+                </button>
+              {% endif %}
+            </div>
+          </header>
+
+          <div class="feed-media">
+            {% if post.image_url %}
+              <img
+                src="{{ post.image_url }}"
+                alt="Post Image"
+                class="feed-img"
+                loading="lazy"
+                onerror="this.style.display='none'; this.closest('.feed-media').querySelector('.feed-fallback').style.display='flex';"
+              >
+              <div class="feed-fallback">
+                <div class="feed-noimg-title">Image failed to load</div>
+                <div class="feed-noimg-sub">Try another link</div>
+              </div>
+            {% else %}
+              <div class="feed-noimg">
+                <div class="feed-noimg-title">No image</div>
+                <div class="feed-noimg-sub">Text-only post</div>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="feed-body">
+            <div class="feed-text" id="content_{{ post.id }}">
+              {{ post.content }}
+            </div>
+
+            {% if user == post.user %}
+              <div class="feed-owner">
+                <button class="edit-btn" data-toggle="modal" data-target="#modal_edit_post_{{ post.id }}" style="border-radius: 12px;">
+                  Edit
+                </button>
+
+                <form action="{% url 'delete_post' post.id %}" method="post" style="margin:0;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger" style="border-radius: 12px; padding:.55rem 1rem;">
+                    Delete
+                  </button>
+                </form>
+              </div>
+
+              {# Edit Modal #}
+              <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content" style="border-radius: 16px; overflow:hidden;">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Edit Post</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{ post.content }}</textarea>
+                      <div style="height:10px;"></div>
+                      <input type="url" id="image_url_{{ post.id }}" class="form-control" name="image_url" value="{{ post.image_url }}" placeholder="Image URL (optional)">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary" onclick="handleSubmit({{ post.id }})">Save changes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
     </div>
 
-    <nav aria-label="Page navigation example"> 
-        <ul class="pagination d-flex justify-content-center">
-            {% if page_posts.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_posts.previous_page_number }}">Previous</a></li>
-            {% endif %}
-            {% if page_posts.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_posts.next_page_number }}">Next</a></li>
-            {% endif %}
-        </ul>
+    {# pagination #}
+    <nav aria-label="Page navigation example" style="padding: 1.2rem 0 2.2rem;">
+      <ul class="pagination d-flex justify-content-center tp-fade">
+        {% if page_posts.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_posts.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        {% if page_posts.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_posts.next_page_number }}">Next</a></li>
+        {% endif %}
+      </ul>
     </nav>
 
-    <script src="{% static 'gym/community.js' %}"></script>
+  </div>
+</section>
+
+</div>
+
+<style>
+  /* ===== Instagram-like feed (smaller + fallback) ===== */
+  .feed-grid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.1rem;
+    align-items: start;
+  }
+
+  .feed-card{
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.03);
+    box-shadow: 0 18px 40px rgba(0,0,0,.30);
+    overflow:hidden;
+
+    max-width: 360px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .feed-head{
+    padding: .9rem 1rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .feed-user{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    flex-wrap:wrap;
+  }
+
+  .feed-userlink{
+    color: rgba(255,215,0,.95);
+    font-weight: 900;
+    text-decoration:none !important;
+  }
+  .feed-userlink:hover{ color:#ffd700; }
+
+  .feed-dot{ color: rgba(255,255,255,.55); }
+  .feed-date{ color: rgba(255,255,255,.70); font-size:.95rem; }
+
+  .feed-media{
+    width:100%;
+    aspect-ratio: 1 / 1;
+    background: rgba(0,0,0,.22);
+  }
+
+  .feed-img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .feed-noimg,
+  .feed-fallback{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    color: rgba(255,255,255,.70);
+  }
+
+  .feed-fallback{ display:none; }
+
+  .feed-noimg-title{ color:#fff; font-weight:900; }
+  .feed-noimg-sub{ font-size:.95rem; opacity:.8; }
+
+  .feed-body{
+    padding: .95rem 1rem 1.05rem;
+  }
+
+  .feed-text{
+    color: rgba(255,255,255,.90);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .feed-owner{
+    margin-top: .9rem;
+    display:flex;
+    gap: 10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  @media (max-width: 1100px){
+    .feed-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px){
+    .feed-grid{ grid-template-columns: 1fr; }
+    .feed-card{ max-width: 520px; }
+  }
+
+  /* ===== Community: safe animations (no blank space) ===== */
+  .tp-fade, .tp-left, .tp-right { opacity: 1; transform: none; }
+
+  .tp-ready .tp-fade,
+  .tp-ready .tp-left,
+  .tp-ready .tp-right{
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .55s ease, transform .55s ease;
+    will-change: opacity, transform;
+  }
+  .tp-ready .tp-left{ transform: translateX(-26px); }
+  .tp-ready .tp-right{ transform: translateX(26px); }
+
+  .tp-show{ opacity: 1 !important; transform: translate(0,0) !important; }
+</style>
+
+<script>
+  window.COMMUNITY_ENDPOINTS = {
+    likeAdd: "{% url 'like_add' 0 %}".replace("/0/", "/"),
+    likeRemove: "{% url 'like_remove' 0 %}".replace("/0/", "/")
+  };
+</script>
+<script src="{% static 'gym/community.js' %}"></script>
+
+<script>
+  // community page-scoped animations (no conflicts with your global script.js)
+  document.addEventListener("DOMContentLoaded", () => {
+    document.documentElement.classList.add("tp-ready");
+
+    const items = Array.from(document.querySelectorAll(".tp-fade, .tp-left, .tp-right"));
+    if (!items.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+
+        const el = entry.target;
+        const i = items.indexOf(el);
+
+        // stagger, capped (so it doesn't feel slow)
+        el.style.transitionDelay = `${Math.min(i * 45, 360)}ms`;
+        el.classList.add("tp-show");
+        obs.unobserve(el);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -10% 0px" });
+
+    items.forEach(el => obs.observe(el));
+  });
+</script>
+
 {% endblock %}

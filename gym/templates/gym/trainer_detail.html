@@ -1,6 +1,8 @@
 {% extends "gym/layout.html" %}
 {% load static %}
 
+{% block title %}Trainer - {{ trainer.name }}{% endblock %}
+
 {% block content %}
 <section class="trainer-detail__container">
     <div class="trainer-detail__header">
@@ -20,14 +22,23 @@
     </div>
 
     <h2>Training Programs:</h2>
-    <ul>
+
+    <ul class="trainer-detail__programs-list">
         {% for program in programs %}
-            <li class="trainer-detail__program-name">{{ program.name }}</li>
+            <li class="trainer-detail__program-item">
+                <a
+                    class="trainer-detail__program-link"
+                    href="{% url 'training_programs' %}?highlight={{ program.id }}"
+                    title="Open this program on Training Programs page"
+                >
+                    {{ program.name }}
+                </a>
+            </li>
         {% empty %}
             <li>No programs available</li>
         {% endfor %}
     </ul>
-    <a href="{% url 'training_programs' %}" class="trainer-detail__btn">Back to training programs</a>
 
+    <a href="{% url 'training_programs' %}" class="trainer-detail__btn">Back to training programs</a>
 </section>
 {% endblock %}
