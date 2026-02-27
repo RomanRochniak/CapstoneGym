@@ -1,778 +1,409 @@
-# Capstone: Gym Membership Management System
+# CapstoneGym — RoshaClub (Gym Membership Management System)
 
-Video Demo: [https://youtu.be/yRvw8X4uvmY](https://youtu.be/yRvw8X4uvmY)
+**Demo video:** https://youtu.be/yRvw8X4uvmY
 
-## Description
-RoshaClub is a web application designed to streamline gym membership management, providing a platform for users to browse training programs, register for memberships, manage their profiles, and interact within a community forum. Gym owners can showcase their trainers, training programs, and facilitate secure online membership purchases.  This comprehensive platform simplifies the management of various aspects of a fitness center's operations.
-
----
-
-## Features
-
-
-* User Registration and Authentication: Secure user registration, login, and logout functionality.
-* Training Program Browsing: Users can browse and filter available training programs, viewing details such as descriptions, duration, and price.
-* Membership Management:  Purchase, renew, and manage memberships with real-time status updates, providing users with clear visibility into their membership status and expiration dates.
-* Trainer Profiles: Detailed trainer profiles showcasing their expertise, including specializations, descriptions, contact information, and photos, helping users choose the right trainer.
-* User Profiles: Personalized user profiles that display user details, active membership information, assigned trainer, and relevant training program details, creating a centralized hub for managing their fitness journey.
-* Community Forum:  A dynamic platform for gym members to connect, share updates, like posts, edit content, and delete their own posts, all enhanced by AJAX for seamless interactions.
-* Payment Integration: Securely process payments for memberships using Stripe, supporting various credit and debit cards as well as Google Pay for added convenience.
-* Responsive Design: The application is designed to be fully responsive, adapting to various screen sizes and devices for optimal viewing and interaction.
+RoshaClub is a Django web application for gym membership management with a modern, product-like UI and an **AI Fitness Assistant**.  
+Users can browse training programs, view trainer profiles, purchase memberships securely via Stripe, manage their profiles, and interact in a community feed.
 
 ---
 
-## Technologies Used
-
-- **Backend**: Django, Python
-- **Frontend**: HTML, CSS, JavaScript
-- **Database**: PostgreSQL (or SQLite for development)
-- **Payment API**: Stripe
+## Table of Contents
+- [What the app does](#what-the-app-does)
+- [Main Features](#main-features)
+- [AI Fitness Assistant](#ai-fitness-assistant)
+- [UI and UX](#ui-and-ux)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Installation and Setup](#installation-and-setup)
+- [Environment Variables](#environment-variables)
+- [Database](#database)
+- [Run the App](#run-the-app)
+- [Stripe Payments](#stripe-payments)
+- [Community Feed (AJAX)](#community-feed-ajax)
+- [Admin Panel](#admin-panel)
+- [Core Models](#core-models)
+- [Key Routes](#key-routes)
+- [Security Notes](#security-notes)
+- [Contact](#contact)
 
 ---
 
-## Installation
+## What the app does
+
+RoshaClub is built around a realistic gym workflow:
+
+1. A user creates an account and logs in.
+2. They browse training programs and trainer profiles.
+3. They purchase a membership for a chosen program using Stripe.
+4. Their profile shows membership status and expiration.
+5. They can post updates in a community feed and interact with other members.
+6. They can ask the AI assistant for program recommendations and guidance based on the site context.
+
+---
+
+## Main Features
+
+### Authentication
+- User registration and login/logout
+- Session-based authentication (Django auth)
+
+### Programs and Trainers
+- Browse training programs (with price, description, duration)
+- Trainer profiles with specialization + details + photos
+- Program-to-trainer relationship
+
+### Membership Management
+- Purchase membership tied to a program
+- Membership has `start_date`, `end_date`, and `status`
+- Clear visibility in profile: active/expired/pending and expiration date
+
+### Payments
+- Stripe integration (card payments)
+- Google Pay support through Stripe flow
+- Payment success/failure feedback page
+
+### Community Feed
+- Create posts (text + optional image URL)
+- Like/unlike posts
+- Edit/delete own posts
+- AJAX interactions for smooth UX (no full page refresh for likes/edits)
+
+### Responsive UI
+- Layout designed to work across desktop/tablet/mobile
+- Card-based UI for programs/trainers
+- Consistent navigation + section spacing + typography hierarchy
+
+---
+
+## AI Fitness Assistant
+
+The AI assistant is an integrated feature that behaves like an “in-app coach”.
+
+### What it does
+- Provides fitness guidance and program recommendations
+- Uses contextual information (programs, trainers, membership-related info) to reduce hallucinations
+- Stores conversation sessions and message history in the database
+
+### Providers supported
+You can run the assistant with either:
+- **Ollama** (local model for development)
+- **Gemini** (cloud model; requires API key)
+
+Switching providers is done via environment variables (see [Environment Variables](#environment-variables)).
+
+### API Endpoint
+**`POST /api/ai/chat/`**
+
+- Requires authentication (user must be logged in)
+- Payload:
+  - `message` (string): user prompt
+  - optionally may support `session_id` depending on your implementation
+- Response includes:
+  - `session_id`
+  - `response` (assistant message)
+  - provider/model metadata
+
+Example:
+```bash
+curl -X POST http://127.0.0.1:8000/api/ai/chat/   -H "Content-Type: application/json"   -d '{"message":"I want to gain muscle. Which program should I choose?"}'
+```
+
+### Controls (stability + cost)
+The assistant includes runtime controls:
+- **Rate limiting** (requests per user per minute)
+- **Short-term caching** (avoid repeated calls for the same prompt)
+- **Timeout** (avoid hanging external calls)
+
+Configured via:
+- `AI_RATE_LIMIT_PER_MIN`
+- `AI_CACHE_SECONDS`
+- `AI_TIMEOUT_SECONDS`
+
+---
+
+## UI and UX
+
+This project is intentionally built to look and feel like a product, not a basic CRUD demo.
+
+Highlights:
+- Consistent base layout (`layout.html`) across pages
+- Card UI for trainers/programs with hover feedback
+- Clear CTAs for membership purchase flow
+- Community feed interactions designed to feel instant (AJAX)
+- Smooth animations (Intersection Observer) where applicable
+
+---
+
+## Tech Stack
+
+- **Backend**: Python, Django
+- **Frontend**: Django templates, HTML, CSS, JavaScript
+- **Database**: SQLite (default dev) or PostgreSQL (optional)
+- **Payments**: Stripe (cards + Google Pay)
+- **AI**: Ollama (local) / Gemini (cloud)
+
+---
+
+## Project Structure
+
+(High-level; exact names may differ depending on your current repo.)
+
+- `capstone/` — Django project config (settings, urls)
+- `gym/` / `gym_app/` — main app (programs, trainers, membership, payments, community)
+- `ai_assistant/` — AI assistant app (chat sessions/messages + API endpoint)
+- `services/` — AI provider clients and context builder utilities
+- `templates/` — Django templates
+- `static/` — CSS/JS/assets
+- `media/` — uploaded images
+
+---
+
+## Installation and Setup
 
 ### Prerequisites
 - Python 3.x
-- Django 4.x
-- Stripe account and API keys
+- pip
+- Django 4.x (installed via requirements)
+- Stripe test keys (for local testing)
+- Optional:
+  - PostgreSQL
+  - Ollama (if using local AI)
+  - Gemini API key (if using Gemini)
 
-### Setup
-
-1.  **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-    cd YOUR_REPOSITORY
-    ```
-2.  **Create and activate a virtual environment:**
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-    ```
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  **Database setup:**
-
-    *   **PostgreSQL:**
-        1.  Create a PostgreSQL database: `createdb roshaclub_db`
-        2.  Create a PostgreSQL user: `createuser roshaclub_user`
-        3.  Grant privileges: `psql -d roshaclub_db -c "GRANT ALL PRIVILEGES ON DATABASE roshaclub_db TO roshaclub_user;"`
-        4.  Configure the database settings in `settings.py`:
-            ```python
-            DATABASES = {
-                'default': {
-                    'ENGINE': 'django.db.backends.postgresql',
-                    'NAME': 'roshaclub_db',
-                    'USER': 'roshaclub_user',
-                    'PASSWORD': 'YOUR_PASSWORD',  # Replace with your actual password!
-                    'HOST': 'localhost',
-                    'PORT': '5432',
-                }
-            }
-
-            ```
-    *   **SQLite:** A database will be created automatically ( `db.sqlite3`).
-
-5.  **Apply migrations:**
-    ```bash
-    python manage.py makemigrations
-    python manage.py migrate
-    ```
-6.  **Configure Stripe API keys:**
-    1.  Create a `.env` file in the root directory: `touch .env` (or `type nul > .env` on Windows)
-    2.  Add your keys:
-        ```
-        STRIPE_PUBLIC_KEY=YOUR_STRIPE_PUBLIC_KEY
-        STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY
-        ```
-    3.  Load the environment variables in `settings.py`:
-
-```python
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+### 1) Clone
+```bash
+git clone https://github.com/RomanRochniak/CapstoneGym.git
+cd CapstoneGym
 ```
-7. **Create a superuser:**
-```django
+
+### 2) Create and activate venv
+```bash
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# macOS/Linux
+# source .venv/bin/activate
+```
+
+### 3) Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the project root.
+
+Example template:
+```env
+# Django
+DJANGO_SECRET_KEY=change-me
+DJANGO_DEBUG=1
+ALLOWED_HOSTS=127.0.0.1,localhost
+
+# Stripe
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+
+# Optional: Stripe webhook signature (if used)
+# STRIPE_WEBHOOK_SECRET=whsec_...
+
+# AI provider: ollama | gemini
+AI_PROVIDER=ollama
+
+# Ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.1:8b
+
+# Gemini
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-1.5-flash
+
+# AI runtime controls
+AI_RATE_LIMIT_PER_MIN=12
+AI_CACHE_SECONDS=120
+AI_TIMEOUT_SECONDS=12
+```
+
+---
+
+## Database
+
+### SQLite (default)
+No setup required. Django creates `db.sqlite3` automatically after migrations.
+
+### PostgreSQL (optional)
+1) Create DB and user:
+```bash
+createdb roshaclub_db
+createuser roshaclub_user
+psql -d roshaclub_db -c "GRANT ALL PRIVILEGES ON DATABASE roshaclub_db TO roshaclub_user;"
+```
+
+2) Configure in `settings.py`:
+```python
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "roshaclub_db",
+        "USER": "roshaclub_user",
+        "PASSWORD": "YOUR_PASSWORD",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
+}
+```
+
+---
+
+## Run the App
+
+### 1) Migrations
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 2) Create admin
+```bash
 python manage.py createsuperuser
 ```
-8. **Run the development server:**
-```django
+
+### 3) Start server
+```bash
 python manage.py runserver
 ```
----
 
-## Stripe Integration
-
-To test payments with Stripe, use the following test card numbers:
-
-| Card Number            | Card Type   | Payment Status             |
-|------------------------|-------------|----------------------------|
-| 4242 4242 4242 4242    | Visa        | Successful Payment         |
-| 4000 0000 0000 0002    | Visa        | Payment Declined by Bank   |
-| 5555 5555 5555 4444    | Mastercard  | Successful Payment         |
-
-You can also test various scenarios like successful payments, declines, and other error responses by using the respective test cards. For more details on testing, you can visit the [Stripe testing documentation](https://stripe.com/docs/testing).
+Open:
+- App: http://127.0.0.1:8000/
+- Admin: http://127.0.0.1:8000/admin/
 
 ---
 
-## Backend Views (`views.py`)
+## Stripe Payments
 
-This file contains the core logic of the application, handling user requests, interacting with the database, processing payments, and rendering templates.  Each view function corresponds to a specific URL pattern defined in `urls.py`
+### Test cards
+| Card Number            | Card Type   | Result                    |
+|------------------------|-------------|---------------------------|
+| 4242 4242 4242 4242    | Visa        | Successful payment        |
+| 4000 0000 0000 0002    | Visa        | Payment declined          |
+| 5555 5555 5555 4444    | Mastercard  | Successful payment        |
 
-## Code Examples:
-Payments View
+### How payment works (logic overview)
+1. User selects a training program.
+2. The payment page collects payment information (card or Google Pay).
+3. Stripe charge / payment intent is created.
+4. After success:
+   - a `Membership` record is created/updated
+   - user is redirected to a result page (`success`)
 
-This view handles the payment process for a selected training program. It supports Stripe for card payments and Google Pay.
-```python
-@login_required
-def payments(request):
-    program_id = request.GET.get('program_id')
-    if not program_id:
-        messages.error(request, "No training program selected for payment.")
-        return redirect('training_programs') 
+### Webhook (if enabled)
+Endpoint:
+- `POST /webhook/`
 
-    program = get_object_or_404(TrainingProgram, pk=program_id)
-
-    if request.method == 'POST':
-        token = request.POST.get('stripeToken')
-        google_pay_token = request.POST.get('google_pay_token')
-
-        if token:
-            # Stripe payment processing (Credit/Debit card)
-            try:
-                charge = stripe.Charge.create(
-                    amount=int(program.price * 100),  # Convert to cents
-                    currency='usd',
-                    description=f'Payment for program {program.name}',
-                    source=token,
-                )
-
-                Membership.objects.create(
-                    user=request.user,
-                    program=program,
-                    start_date=date.today(),
-                    end_date=date.today() + timedelta(days=30),
-                    status='active'
-                )
-                return redirect('payment_success', status='success', message='Payment successful!', program_id=program.id)
-
-            except stripe.error.CardError as e:
-                error_code = e.error.code  # Get the error code
-                if error_code == "insufficient_funds":
-                    return redirect('payment_success', status='failure', message="Payment failed: Insufficient funds. Card is blocked.", program_id=program.id)
-                return redirect('payment_success', status='failure', message=f"Payment failed: {e.error.message}", program_id=program.id)
-
-            except stripe.error.StripeError as e:
-                return redirect('payment_success', status='failure', message=f"Payment failed: {e}", program_id=program.id)
-
-            except Exception as e:
-                return redirect('payment_success', status='failure', message=f"Payment failed: {e}", program_id=program.id)
-
-        elif google_pay_token:
-            # Google Pay payment processing via Stripe
-            try:
-                payment_intent = stripe.PaymentIntent.create(
-                    amount=int(program.price * 100),  # Convert to cents
-                    currency='usd',
-                    payment_method=google_pay_token,
-                    confirmation_method='manual',
-                    confirm=True,
-                )
-
-                Membership.objects.create(
-                    user=request.user,
-                    program=program,
-                    start_date=date.today(),
-                    end_date=date.today() + timedelta(days=30),
-                    status='active'
-                )
-
-                return redirect('payment_success', status='success', message='Payment successful!', program_id=program.id)
-
-            except stripe.error.CardError as e:
-                return redirect('payment_success', status='failure', message=f"Payment failed: {e.error.message}", program_id=program.id)
-
-            except stripe.error.StripeError as e:
-                return redirect('payment_success', status='failure', message=f"Payment failed: {e}", program_id=program.id)
-
-            except Exception as e:
-                return redirect('payment_success', status='failure', message=f"Payment failed: {e}", program_id=program.id)
-
-        else:
-            return redirect('payment_success', status='failure', message="No payment token provided.", program_id=program.id)
-
-    return render(request, 'gym/payments.html', {'stripe_public_key': settings.STRIPE_PUBLIC_KEY, 'program_id': program_id, 'program': program})
-```
-
-Payment Processing:
-```python
-@csrf_exempt
-def process_payment(request, program_id):
-    program = get_object_or_404(TrainingProgram, pk=program_id)
-    if request.method == 'POST':
-        try:
-            token = request.POST.get('stripeToken')
-            stripe.Charge.create(
-                amount=int(program.price * 100),
-                currency='usd',
-                description=f'Payment for program {program.name}',
-                source=token,
-            )
-            Membership.objects.create(
-                user=request.user,
-                program=program,
-                start_date=date.today(),
-                end_date=date.today() + timedelta(days=30),
-                status='active'
-            )
-            return JsonResponse({'success': True, 'message': "Payment successful!"})
-        except stripe.error.StripeError as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-```
-
-`success` View.
-This view displays the payment result to the user.
-
-```python
-def success(request, status, message, program_id):
-    return render(request, 'gym/success.html', {'message': message, 'status': status, 'program_id': program_id})
-```
-
-`stripe_webhook` View
-
-Handles Stripe webhook events for additional payment processing logic.
-
-```
-@csrf_exempt
-def stripe_webhook(request):
-    payload = request.body
-    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
-    endpoint_secret = 'twoj_sekret_webhooka'
-
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
-    except ValueError:
-        return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError:
-        return HttpResponse(status=400)
-
-    if event['type'] == 'charge.succeeded':
-        charge = event['data']['object']
-
-    return HttpResponse(status=200)
-
-# logic for community
-def community(request):
-    all_posts = Post.objects.order_by('-created_at')
-    paginator = Paginator(all_posts, 10)
-    page_number = request.GET.get('page')
-    page_posts = paginator.get_page(page_number)
-
-    if request.user.is_authenticated:
-        liked_post_ids = list(request.user.liked_posts.values_list('id', flat=True))
-
-        # Filter liked_post_ids to only include posts that are on the current page
-        liked_posts_on_current_page = request.user.liked_posts.filter(id__in=[post.id for post in page_posts]) 
-        liked_post_ids_on_current_page = [post.id for post in liked_posts_on_current_page]
-
-    else:
-        liked_post_ids = []
-        liked_post_ids_on_current_page = []
-
-    return render(request, "gym/community.html", {
-        "page_posts": page_posts,
-        "liked_post_ids": liked_post_ids_on_current_page, 
-        "user": request.user  
-    })
-```
-Templates
-
-`payments.html`
-```
-{% extends 'gym/layout.html' %}
-{% block content %}
-
-<h1>Pay for Training Program</h1>
-
-<h2>{{ program.name }}</h2>
-<p>{{ program.description }}</p>
-<p>Price: ${{ program.price }}</p>
-
-{% if error_message %}
-    <div class="error-message">
-        <p style="color: red;">{{ error_message }}</p>
-    </div>
-{% endif %}
-
-<form action="{% url 'payments' %}?program_id={{ program_id }}" method="post" id="payment-form">
-    {% csrf_token %}
-    <div id="card-element"></div>
-    <div id="card-errors" role="alert"></div>
-    <button type="submit">Submit Payment</button>
-</form>
-
-<!-- Stripe.js -->
-<script src="https://js.stripe.com/v3/"></script>
-
-<script>
-const stripe = Stripe('{{ stripe_public_key }}');
-const elements = stripe.elements();
-const style = {
-    base: {
-        color: "#32325d",
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-        fontSmoothing: "antialiased",
-        fontSize: "16px",
-        "::placeholder": {
-            color: "#aab7c4"
-        }
-    }
-};
-const card = elements.create('card', { style: style });
-card.mount('#card-element');
-
-card.on('change', function(event) {
-    const errorDiv = document.getElementById('card-errors');
-    if (event.error) {
-        errorDiv.textContent = event.error.message;
-    } else {
-        errorDiv.textContent = '';
-    }
-});
-
-const form = document.getElementById('payment-form');
-form.addEventListener('submit', async function(event) {
-    event.preventDefault();
-    const { token, error } = await stripe.createToken(card);
-    if (error) {
-        document.getElementById('card-errors').textContent = error.message;
-    } else {
-        const hiddenInput = document.createElement('input');
-        hiddenInput.setAttribute('type', 'hidden');
-        hiddenInput.setAttribute('name', 'stripeToken');
-        hiddenInput.setAttribute('value', token.id);
-        form.appendChild(hiddenInput);
-        form.submit();
-    }
-});
-</script>
-
-{% endblock %}
-```
-
-`success.html`
-```
-{% extends "gym/layout.html" %}
-
-{% block content %}
-<h1>{{ message }}</h1>
-
-{% if status == "failure" %}
-    {% if error_code == "insufficient_funds" %}
-        <p style="color: red;">Payment failed: Insufficient funds. Your card is blocked.</p>
-    {% else %}
-        <p style="color: red;">Payment failed. Please try again.</p>
-    {% endif %}
-    <a href="{% url 'payments' %}?program_id={{ program_id }}">Retry Payment</a>
-{% elif status == "success" %}
-    <p style="color: green;">Payment was successful!</p>
-    <a href="{% url 'profile' %}">Go to your profile</a>
-{% endif %}
-{% endblock %}
-```
+Note: webhook signature verification is the correct approach if you rely on webhooks in production.
 
 ---
 
-## URL Patterns (`urls.py`)
-
-This file defines how URLs are mapped to specific view functions in `views.py`. It uses Django's path function to create these mappings.  It acts as the routing table for the application, directing incoming requests to the correct handlers.
-
-
-```python
-from django.urls import path  # ... other imports
-
-urlpatterns = [
-    # ... other URL patterns
-
-    path('training-programs/', views.training_programs, name='training_programs'),
-    path('payment/<int:program_id>/', views.process_payment, name='process_payment'),
-    path('payments/', views.payments, name='payments'), # Payment page with stripe and Google Pay elements
-    path('success/<str:status>/<str:message>/<int:program_id>/', views.success, name='payment_success'), # Shows result for payment
-
-
-    # ... other URL patterns, including community paths
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-```
-
-## Payment Workflow
-
-The payment process is tied to the `TrainingProgram` and `Membership` models. Here's how it works:
-
-1. **User Selects a Training Program:** Users browse available training programs listed by trainers on the frontend. Upon selecting a program, they can proceed to make a payment.
-
-2. **Payment Handling:** Payment is processed using Stripe. The `payments` view handles both Stripe and Google Pay integration.  Upon receiving the payment token, it processes the charge using the Stripe API and creates a `Membership` entry, linking the user to the selected program. The `Membership` model tracks the start and end dates of the membership and its status (active, expired, pending).
-
-3. **Payment Confirmation:** After processing, the user is redirected to a success or failure page based on the result. Payment status is displayed in the `success.html` template.
-
-## Models
-
-* **User:** A custom User model inheriting from Django's `AbstractUser` with basic authentication features.
-
-* **Trainer:** Represents gym trainers, including name, specialization, description, and photo.
-
-```python
-class Trainer(models.Model):
-    name = models.CharField(max_length=100)
-    specialization = models.CharField(max_length=100)
-    description = models.TextField()
-    photo = models.ImageField(upload_to='trainers/')
-```
-`TrainingProgram:` Represents training programs with details like name, description, duration, price, and the associated trainer.
-```python
-class TrainingProgram(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    duration = models.PositiveIntegerField(help_text="Duration in minutes")
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    trainer = models.ForeignKey(Trainer, on_delete=models.CASCADE, null=True, blank=True)
-```
-
-`Membership:` Links users to training programs, including start and end dates and status (active, expired, or pending).
-```python
-class Membership(models.Model):
-    STATUS_CHOICES = [
-        ('active', 'Active'),
-        ('expired', 'Expired'),
-        ('pending', 'Pending'),
-    ]
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="memberships")
-    program = models.ForeignKey(TrainingProgram, on_delete=models.CASCADE, related_name="memberships")
-    start_date = models.DateField()
-    end_date = models.DateField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-
-```
-
-`Payment:` Tracks payment transactions, including the Stripe charge ID and the amount.
-
-```python
-class Payment(models.Model):
-    stripe_charge_id = models.CharField(max_length=50)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    created = models.DateTimeField(auto_now_add=True)
-
-```
-`Post:` Represents community posts. Users can like and comment. like_count() returns the total likes.
-```python
-class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    content = models.TextField(blank=True)
-    image_url = models.URLField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
-
-    def like_count(self):
-        return self.likes.count()
-```
-
-## Community Forum
-
-The Community Forum allows users to interact with each other by posting updates, sharing experiences, and engaging with posts from other gym members.
-
-**Features of the Community:**
-
-* **Post Content:** Users can create posts with text and optional images.
-* **Like Posts:** Users can like posts to show support or appreciation.
-* **Comment on Posts:** Engage in discussions by commenting on posts. (This feature is not yet implemented in the provided code, but is listed as a future enhancement.)
-* **Paginated Posts:** Posts are displayed in a paginated format, showing a limited number of posts per page.
-* **Delete Posts:** Users can delete their own posts.
-
-**How to Use:**
-
-* **Viewing Posts:** All posts from users are displayed on the community page in reverse chronological order.  You can also view posts by a specific user by visiting their profile.
-* **Interacting with Posts:** Logged-in users can like posts. The like button dynamically updates the like count without requiring a page refresh.  They can also edit and delete their own posts.
-
-### JavaScript (`community.js`)
-```js
-document.addEventListener('DOMContentLoaded', function() {
-});
-
-function likeHandler(postId, initialLikedState) { 
-    let liked = initialLikedState; 
-
-    const url = liked ? `/gym/like_remove/${postId}/` : `/gym/like_add/${postId}/`;
-    fetch(url, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') }
-    })
-    .then(response => {
-        if (!response.ok) {
-            console.error("HTTP error:", response.status, response.statusText);
-            return Promise.reject(new Error(response.statusText));
-        }
-        return response.json();
-    })
-    .then(data => {
-        const likeButton = document.getElementById(`like_button_${postId}`);
-        const likeIcon = document.getElementById(`like_icon_${postId}`);
-        const likeCount = document.getElementById(`like_count_${postId}`);
-
-        likeCount.textContent = data.like_count;
-
-        // Toggle the liked state *after* the successful API call
-        liked = !liked; // crucial line
-
-        if (liked) { // crucial
-            likeIcon.classList.remove('fa-regular');
-            likeIcon.classList.add('fa-solid');
-            likeButton.classList.add("liked");
-        } else { // crucial
-            likeIcon.classList.remove('fa-solid');
-            likeIcon.classList.add('fa-regular');
-            likeButton.classList.remove("liked");
-        }
-
-        // Update the button's onclick to reflect the new state
-        likeButton.setAttribute('onclick', `likeHandler(${postId}, ${liked})`);
-    })
-    .catch(error => {
-        console.error("Error updating like:", error);
-    });
-}
-
-function handleSubmit(postId) {
-    const content = document.getElementById(`textarea_${postId}`).value;
-    fetch(`/gym/edit/${postId}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ content: content })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            document.getElementById(`content_${postId}`).textContent = content;
-            $(`#modal_edit_post_${postId}`).modal('hide');
-        } else if (data.error) {
-            console.error("Error:", data.error);
-            alert(data.error);
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    });
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-```
-
-### Views (`views.py`)
-The backend handles the logic for post creation, editing, liking, and deleting.
-
-```python
-@login_required
-def new_post(request):
-    if request.method == "POST":
-        content = request.POST.get("content")
-        image_url = request.POST.get("image_url")
-        post = Post(user=request.user, content=content, image_url=image_url)
-        post.save()
-        return redirect('community')  # Redirect to community view
-    return redirect('community') # Redirect to avoid empty submission error
-
-
-@login_required
-@login_required
-def edit_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id) 
-    if request.method == "POST":
-        if post.user == request.user:
-            try:
-                data = json.loads(request.body.decode('utf-8')) 
-                post.content = data.get("content")
-                post.image_url = data.get("image_url")
-                post.save()
-                return JsonResponse({"message": "Post edited successfully"})
-            except json.JSONDecodeError:
-                return JsonResponse({"error": "Invalid JSON data"}, status=400)
-        else:
-            return JsonResponse({"error": "Unauthorized"}, status=403) 
-    else: 
-        return JsonResponse({"error": "Only POST requests are allowed for edit."}, status=405)
-
-
-
-@login_required
-def like_add(request, post_id): # like_add
-    if request.method == 'POST':
-        post = get_object_or_404(Post, pk=post_id)
-        post.likes.add(request.user)
-        return JsonResponse({'liked': True, 'like_count': post.like_count()})  
-    return JsonResponse({'error': 'Invalid request method.'}, status=405) 
-
-
-@login_required
-def like_remove(request, post_id): # like_remove
-    if request.method == 'POST':
-        post = get_object_or_404(Post, pk=post_id)
-        post.likes.remove(request.user)
-        return JsonResponse({'liked': False, 'like_count': post.like_count()}) 
-    return JsonResponse({'error': 'Invalid request method.'}, status=405)
-
-def user_posts(request, username):  
-    user = get_object_or_404(User, username=username) 
-    posts = Post.objects.filter(user=user).order_by('-created_at') 
-
-    if request.user.is_authenticated:
-        liked_post_ids = list(request.user.liked_posts.values_list('id', flat=True))
-    else:
-        liked_post_ids = []
-
-    context = {
-        'profile_user': user,  
-        'posts': posts, 
-        'liked_post_ids': liked_post_ids, 
-    }
-    return render(request, 'gym/profile_community.html', context)
-
-
-
-from django.http import HttpResponseForbidden
-
-@login_required
-def delete_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    
-    if post.user != request.user:
-        return HttpResponseForbidden("You cannot delete this post.")
-    
-    post.delete()
-    messages.success(request, "The post was successfully deleted.")
-    return redirect('community')
-```
----
-
-## Styling and Responsiveness (`styles.css`)
-
-The `styles.css` file is responsible for the visual presentation and responsive design of the RoshaClub application.  It leverages CSS3 features, including transitions, animations, flexbox, and grid, to create a modern and dynamic user experience. Key aspects of the styling include:
-
-* **Color Palette:**  A dark color scheme with gold accents is used to create a sophisticated and visually appealing design.  Custom CSS variables (`--primary-color`, `--secondary-color`, etc.) are used for consistent color management throughout the application.
-
-* **Typography:** The 'Poppins' font from Google Fonts is used for clean and readable text.  Different font weights are used to create visual hierarchy and emphasis.
-
-* **Layout:**  The layout is primarily based on flexbox and CSS Grid, providing flexibility and adaptability to different screen sizes.  The `section__container` class is used to provide a consistent maximum width and padding for sections.
-
-* **Animations and Transitions:** Subtle animations and transitions are applied to various elements, such as fade-in effects on content and hover effects on buttons and cards, enhancing user engagement and providing visual feedback.
-
-* **Responsiveness:** Media queries are used extensively to ensure that the website adapts seamlessly to different screen sizes. Specific styles are applied for smaller screens to optimize content display and improve user experience on mobile devices.
-
-* **Component-Specific Styles:**  The CSS includes specific styles for different components of the application, such as the navigation bar, header, training program cards, trainer profiles, community forum posts, and forms. These styles ensure consistency in design and presentation across the entire application.
-
-
-## User Registration and Authentication:
-Usage
-1. Register: Create a user account.
-2. Browse Programs: View available training programs.
-3. Purchase Membership: Select and purchase a membership plan.
-4. Manage Profile: Update personal details and track membership status.
-5. Community Interaction: Post and respond in the community forum.
-
-
-## File Breakdown
-
-This section details the key files contributing to RoshaClub's functionality. While other supporting files exist (templates, static assets),  this breakdown focuses on the core logic and data handling components.
-
-**Core Application Logic and Data:**
-
-*   **`gym_app/models.py`:** Defines the data structures (models) for the application, including trainers, training programs, memberships, payments, users, and community forum posts.
-*   **`gym_app/views.py`:** Contains the core backend logic, handling user requests, database interactions, payment processing, and rendering templates.
-*   **`gym_app/urls.py`:** Maps URL patterns to their corresponding view functions in `views.py`, defining the application's routing.
-*   **`gym_app/forms.py`:** Defines forms for user input, including post creation and user registration.
-*   **`gym_app/admin.py`**: Registers models with the Django admin site for easy data management.
-
-**Frontend (Templates, Styling, and Interactivity):**
-
-The frontend of the application is built using a combination of HTML templates, CSS for styling, and JavaScript for interactive elements.  These files handle the user interface and user experience. Detailed descriptions can be provided upon request, but are not included here to focus on the core application logic.  The core frontend files include:
-**Frontend (Templates, Styling, and Interactivity):**
-
-*   **`templates/gym/about_us.html`:** Displays information about the gym.
-*   **`templates/gym/community.html`:** Renders the community forum.
-*   **`templates/gym/edit_profile.html`:** Provides a form for users to edit their profile.
-*   **`templates/gym/index.html`:**  The main homepage template.
-*   **`templates/gym/layout.html`:** The base template for all other templates.
-*   **`templates/gym/login.html`:**  Displays the login form.
-*   **`templates/gym/payments.html`:** Handles payment processing using Stripe.
-*   **`templates/gym/profile_community.html`:**  Displays community posts on user profiles.
-*   **`templates/gym/profile.html`:** Shows user profile information.
-*   **`templates/gym/register.html`:** Displays the user registration form.
-*   **`templates/gym/success.html`:** Shows payment success/failure messages.
-*   **`templates/gym/training_programs.html`:** Lists the available training programs.
-*   **`templates/gym/trainer_detail.html`:** Displays individual trainer profiles.
-*   **`static/gym/styles.css`:** Styles the entire application using CSS, ensuring responsiveness and a consistent design.  Uses CSS variables, media queries, flexbox, and grid layout for modern styling.
-*   **`static/gym/community.js`:** Handles community forum interactions, including AJAX requests for liking and editing posts. Implements CSRF token handling for security.
-*   **`static/gym/scripts.js`:** Implements animations and interactive elements using the Intersection Observer API.
-*   **`static/gym/google-pay.js`:**  Handles Google Pay integration for payments.
-*   **`static/gym/assets`:** Contains static assets like images, icons, and other media.
-
+## Community Feed (AJAX)
+
+The community feed supports interactive actions without full page reload.
+
+### Frontend behavior
+- Like/unlike sends POST requests via fetch
+- Edit post sends JSON to backend and updates DOM on success
+- CSRF token is included in AJAX requests
+
+### Backend behavior
+- Like add/remove endpoints update M2M relation (`Post.likes`)
+- Edit endpoint validates ownership before updating
+- Delete endpoint blocks users from deleting others’ posts
 
 ---
 
-## Distinctiveness and Complexity:
+## Admin Panel
 
-RoshaClub is a comprehensive gym membership management platform with integrated community features, distinguishing it significantly from Project 2 (Commerce), which focuses on a traditional auction-style e-commerce model. While RoshaClub includes e-commerce elements for handling membership payments, its core functionality and technical implementation are vastly different.
+Admin URL:
+- http://127.0.0.1:8000/admin/
 
-The key distinctions that set RoshaClub apart from Project 2 and demonstrate its increased complexity include:
+Use admin to manage:
+- Trainers
+- Training programs
+- Memberships
+- Posts/payments data (depending on registered models)
 
-* **Subscription-based Memberships vs. One-time Auction Purchases:** RoshaClub manages recurring membership subscriptions, handling subscription lifecycles, renewals, expirations, and various membership tiers. This contrasts sharply with Commerce's one-time auction purchases, where users bid on individual items.  Managing memberships requires complex backend logic to track durations, status (active, expired), and user-membership associations, adding significant complexity absent in Project 2.
+---
 
-* **Personalized User Experience based on Membership:** RoshaClub offers a personalized user experience based on the user's active membership status.  User profiles dynamically display information related to their current membership, including assigned trainer, program details, and membership expiration. This dynamic content rendering, driven by backend logic, differs from the static user profiles in Commerce, where user information is not contextually linked to purchased items.
+## Core Models
 
-* **Dynamic Community Forum with Real-time AJAX Interactions:**  A key differentiating feature is RoshaClub's dynamic community forum, built with AJAX for real-time interactions like liking and editing posts. This provides a seamless and engaging user experience, contrasting with Commerce's static comment section. Implementing AJAX in the community forum introduced considerable complexity in handling asynchronous requests, DOM manipulation, and CSRF token management in `community.js` (approximately X lines of code) and the corresponding backend views.
+(Conceptual overview; field names may vary slightly.)
 
-* **Trainer and Program Management Complexity:** RoshaClub incorporates functionality for managing trainer profiles and associating them with training programs. This involves database relationships (ForeignKeys, ManyToManyFields) and backend logic to handle these associations, adding a layer of complexity not present in Project 2, which focuses solely on item listings.
+### Trainer
+- `name`
+- `specialization`
+- `description`
+- `photo`
 
-* **Advanced Payment Integration with Stripe and Google Pay:** Both projects handle payments, but RoshaClub integrates with Stripe, including support for Google Pay, providing a more robust and feature-rich payment system. This integration requires secure handling of webhooks for asynchronous payment confirmation and management of various payment scenarios, adding approximately Y lines of code to handle payment intents, responses, and updating membership statuses.  This is a more sophisticated implementation than Commerce's simpler payment model.
+### TrainingProgram
+- `name`
+- `description`
+- `duration`
+- `price`
+- `trainer` (FK)
 
-* **Focus on Responsive Design:** RoshaClub prioritizes responsive design, using media queries and Bootstrap's grid system in `styles.css` to ensure a consistent user experience across various devices (desktops, tablets, and mobile).  While Project 2 might include styling, the Capstone project has a requirement for responsiveness.
+### Membership
+- `user` (FK)
+- `program` (FK)
+- `start_date`
+- `end_date`
+- `status` (`active` / `expired` / `pending`)
 
-The combined features and technical implementations in RoshaClub make it substantially more complex than Project 2.  RoshaClub is a distinct application that moves beyond basic e-commerce or auction functionalities by incorporating dynamic content, real-time interactions, and robust membership and payment management.  This project represents a significant advancement in features, scope, and technical implementation compared to Project 2, demonstrating the fulfillment of the distinctiveness and complexity requirements for the Capstone Project.
+### Payment
+- `stripe_charge_id`
+- `amount`
+- `created`
 
-## Contributing:
-We welcome contributions! Please follow these steps:
-- `Fork` the repository.
-- `Create` a new branch (git checkout -b feature-branch).
-- `Commit` your changes (git commit -m 'Add feature').
-- `Push` the branch (git push origin feature-branch).
-- `Create` a pull request.
+### Post
+- `user` (FK)
+- `content`
+- `image_url` (optional)
+- `created_at`
+- `likes` (M2M)
 
-## Additional Information
-RoshaClub utilizes Bootstrap for styling and responsive design, ensuring a consistent and user-friendly experience across various devices. The community forum functionality is enhanced with AJAX to provide real-time updates and a more engaging user interface. CSRF protection is implemented throughout the application to mitigate cross-site request forgery attacks, a crucial aspect of web application security. The use of custom CSS properties (variables) in styles.css allows for easy and consistent theme management. The dynamic animations, implemented using the Intersection Observer API in scripts.js, enhance user engagement without compromising performance, as elements are only animated when they are visible in the viewport.
+---
+
+## Key Routes
+
+(Exact routes depend on your URL config; these are the main ones referenced in the project.)
+
+- Programs:
+  - `/training-programs/`
+- Payments:
+  - `/payments/?program_id=<id>`
+  - `/success/<status>/<message>/<program_id>/`
+- Community:
+  - `/community/` (or `/gym/community/` depending on routing)
+- AI:
+  - `/api/ai/chat/`
+- Admin:
+  - `/admin/`
+- Stripe webhook (if present):
+  - `/webhook/`
+
+---
+
+## Security Notes
+
+- CSRF protection should remain enabled for form submissions and AJAX POSTs.
+- Do not commit `.env` files or secret keys to the repository.
+- Stripe secret keys and AI API keys must be stored as environment variables.
+
+---
 
 ## Contact
-For any questions or feedback, feel free to contact me at ` rochnyak180405@gmail.com `(Roman Rochniak).
+
+For questions or feedback: **rochnyak180405@gmail.com** (Roman Rochniak)
