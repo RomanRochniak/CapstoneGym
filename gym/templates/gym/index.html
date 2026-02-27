@@ -4,129 +4,457 @@
 {% block title %}Home - RoshaClub{% endblock %}
 
 {% block content %}
-<header class="section__container header__container slide-in-left">
-    <div class="header__content fade-in">
-        <span class="bg__blur"></span>
-        <span class="bg__blur header__blur"></span>
-        <h4>The Best Fitness Program</h4>
-        <h1><span>Improve</span> your body</h1>
-        <p>
-            Unlock your hidden superpowers! Join us in "Get Your Body Into Shape" and see how you can change — in ways you never imagined!
+
+<div class="home-shell">
+
+    <header class="section__container header__container slide-in-left home-hero">
+        <div class="header__content fade-in home-hero__content">
+            <span class="bg__blur"></span>
+            <span class="bg__blur header__blur"></span>
+
+            <div class="home-badge">
+                <span class="home-badge__dot"></span>
+                RoshaClub • Discipline First
+            </div>
+
+            <h4>The Best Fitness Program</h4>
+            <h1><span>Improve</span> your body</h1>
+            <p>
+                Unlock your hidden superpowers! Join us in "Get Your Body Into Shape" and see how you can change — in ways you never imagined!
+            </p>
+
+            <a href="{% url 'join' %}" class="home-hero__cta-link">
+                <button class="btn home-hero__cta">Let’s Start!</button>
+            </a>
+        </div>
+
+        <div class="header__image home-hero__image"></div>
+    </header>
+
+    <section class="section__container explore__container home-explore">
+        <div class="explore__header home-explore__header">
+            <h2 class="section__header">Check Out Our Programs (Seriously, we have it all)</h2>
+        </div>
+
+        <div class="explore__grid home-explore__grid">
+            <div class="explore__card">
+                <span><i class="ri-boxing-fill"></i></span>
+                <h4>Strength Training</h4>
+                <p>
+                    Become stronger not only physically but also mentally. You’ll also get a real workout — even Guts from Berserk couldn’t handle our training. 🏋️‍♂️
+                </p>
+            </div>
+
+            <div class="explore__card">
+                <span><i class="ri-heart-pulse-fill"></i></span>
+                <h4>Physical Fitness</h4>
+                <p>
+                    It’s not just about looking good — it’s about feeling even better! Train like Zyzz and show who’s the true sword master.
+                </p>
+            </div>
+
+            <div class="explore__card">
+                <span><i class="ri-run-line"></i></span>
+                <h4>Fat Loss</h4>
+                <p>
+                    Don't know what foot day is yet? Go through it, and you'll understand why we say: "Always release air when you go on foot day." 😅
+                </p>
+            </div>
+
+            <div class="explore__card">
+                <span><i class="ri-shopping-basket-fill"></i></span>
+                <h4>Weight Gain</h4>
+                <p>
+                    Because who said gaining weight can't be as exciting as losing it? As soon as your heart gets broken by a girl, you’ll instantly gain 100 kg — no joke.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section__container class__container fade-in-fog home-class">
+        <div class="class__image home-class__image">
+            <span class="bg__blur"></span>
+            <img src="{% static 'gym/assets/class-2.jpg' %}" alt="class" class="class__img-1">
+            <img src="{% static 'gym/assets/class-4.webp' %}" alt="class" class="class__img-2">
+        </div>
+
+        <div class="class__content fadeInConten home-class__content">
+            <h2 class="section__header">Great Workouts That Will Really Make You Sweat</h2>
+            <p>
+                Imagine a workout so amazing you won’t even notice how you're stepping out of your comfort zone.
+            </p>
+
+            <a href="{% url 'join' %}" class="home-class__cta-link">
+                <button class="btn home-class__cta">Sign Up for a Training Session (if you're ready)</button>
+            </a>
+        </div>
+    </section>
+
+    <section class="section__container join__container home-join">
+        <h2 class="section__header">Why Join Us? (Hint: We're Awesome)</h2>
+        <p class="section__subheader">
+            It's like family here — only with better fitness. We support each other in achieving our fitness goals.
         </p>
 
-        <a href="{% url 'join' %}">
-            <button class="btn">Let’s Start!</button>
-        </a>
-    </div>
-    <div class="header__image"></div>
-</header>
+        <div class="join__image fade-in-fog home-join__image">
+            <img class="join__img" src="{% static 'gym/assets/joinus.jpg' %}" alt="Join" />
 
-<section class="section__container explore__container">
-    <div class="explore__header">
-        <h2 class="section__header">Check Out Our Programs (Seriously, we have it all)</h2>
-    </div>
-    <div class="explore__grid">
-        <div class="explore__card">
-            <span><i class="ri-boxing-fill"></i></span>
-            <h4>Strength Training</h4>
-            <p>
-                Become stronger not only physically but also mentally. You’ll also get a real workout — even Guts from Berserk couldn’t handle our training. 🏋️‍♂️
-            </p>
-        </div>
-        <div class="explore__card">
-            <span><i class="ri-heart-pulse-fill"></i></span>
-            <h4>Physical Fitness</h4>
-            <p>
-                It’s not just about looking good — it’s about feeling even better! Train like Zyzz and show who’s the true sword master.
-            </p>
-        </div>
-        <div class="explore__card">
-            <span><i class="ri-run-line"></i></span>
-            <h4>Fat Loss</h4>
-            <p>
-                Don't know what foot day is yet? Go through it, and you'll understand why we say: "Always release air when you go on foot day." 😅
-            </p>
-        </div>
-        <div class="explore__card">
-            <span><i class="ri-shopping-basket-fill"></i></span>
-            <h4>Weight Gain</h4>
-            <p>
-                Because who said gaining weight can't be as exciting as losing it? As soon as your heart gets broken by a girl, you’ll instantly gain 100 kg — no joke.
-            </p>
-        </div>
-    </div>
-</section>
+            <div class="join__grid home-join__grid">
+                <div class="join__card">
+                    <span><i class="ri-user-star-fill"></i></span>
+                    <div class="join__card__content">
+                        <h4>Your Personal Trainer</h4>
+                        <p>They'll help you reach your peak. In the most motivating way! By the way, we have Roman Rochniak and Georgy Danilov, so you’ll train with legends!</p>
+                    </div>
+                </div>
 
-<section class="section__container class__container fade-in-fog">
-    <div class="class__image">
-        <span class="bg__blur"></span>
-        <img src="{% static 'gym/assets/class-2.jpg' %}" alt="class" class="class__img-1">
-        <img src="{% static 'gym/assets/class-4.webp' %}" alt="class" class="class__img-2">
-    </div>
-    <div class="class__content fadeInConten">
-        <h2 class="section__header">Great Workouts That Will Really Make You Sweat</h2>
-        <p>
-            Imagine a workout so amazing you won’t even notice how you're stepping out of your comfort zone.
+                <div class="join__card">
+                    <span><i class="ri-vidicon-fill"></i></span>
+                    <div class="join__card__content">
+                        <h4>Training Sessions</h4>
+                        <p>Training makes a master. And you'll be very sweaty. But above all, perfect. And don’t forget leg day!</p>
+                    </div>
+                </div>
+
+                <div class="join__card">
+                    <span><i class="ri-building-line"></i></span>
+                    <div class="join__card__content">
+                        <h4>Professional Management</h4>
+                        <p>Because your fitness journey deserves professional support. Even the worst physique gets trained here and turns into something beautiful!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section__container price__container home-price">
+        <h2 class="section__header">Prices (We’re Cheaper Than a Doctor)</h2>
+        <p class="section__subheader">
+            Choose your plan. We promise we won’t charge you as much as a gym membership. And certainly not as much as you spend on coffee daily.
         </p>
 
-        <a href="{% url 'join' %}">
-            <button class="btn">Sign Up for a Training Session (if you're ready)</button>
-        </a>
-    </div>
-</section>
+        <div class="price__grid home-price__grid">
+            {% for program in programs %}
+                <div class="price__card">
+                    <div class="price__card__content">
+                        <h4>{{ program.name }}</h4>
+                        <h3>${{ program.price }}</h3>
+                        <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
+                    </div>
 
-<section class="section__container join__container">
-    <h2 class="section__header">Why Join Us? (Hint: We're Awesome)</h2>
-    <p class="section__subheader">
-        It's like family here — only with better fitness. We support each other in achieving our fitness goals.
-    </p>
-    <div class="join__image fade-in-fog">
-        <img class="join__img" src="{% static 'gym/assets/joinus.jpg' %}" alt="Join" />
-        <div class="join__grid">
-            <div class="join__card">
-                <span><i class="ri-user-star-fill"></i></span>
-                <div class="join__card__content">
-                    <h4>Your Personal Trainer</h4>
-                    <p>They'll help you reach your peak. In the most motivating way! By the way, we have Roman Rochniak and Georgy Danilov, so you’ll train with legends!</p>
+                    <a href="{% url 'join' %}" class="btn price__btn home-price__btn">Join Now</a>
                 </div>
-            </div>
-            <div class="join__card">
-                <span><i class="ri-vidicon-fill"></i></span>
-                <div class="join__card__content">
-                    <h4>Training Sessions</h4>
-                    <p>Training makes a master. And you'll be very sweaty. But above all, perfect. And don’t forget leg day!</p>
-                </div>
-            </div>
-            <div class="join__card">
-                <span><i class="ri-building-line"></i></span>
-                <div class="join__card__content">
-                    <h4>Professional Management</h4>
-                    <p>Because your fitness journey deserves professional support. Even the worst physique gets trained here and turns into something beautiful!</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="section__container price__container">
-    <h2 class="section__header">Prices (We’re Cheaper Than a Doctor)</h2>
-    <p class="section__subheader">
-        Choose your plan. We promise we won’t charge you as much as a gym membership. And certainly not as much as you spend on coffee daily.
-    </p>
+</div>
 
-    <div class="price__grid">
-        {% for program in programs %}
-            <div class="price__card">
-                <div class="price__card__content">
-                    <h4>{{ program.name }}</h4>
-                    <h3>${{ program.price }}</h3>
-                    <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
-                </div>
+<style>
+    .home-shell{
+        overflow-x: clip;
+    }
 
-                <a href="{% url 'join' %}" class="btn price__btn">Join Now</a>
-            </div>
-        {% endfor %}
-    </div>
-</section>
+    .home-badge{
+        display:inline-flex;
+        align-items:center;
+        gap:.6rem;
+        padding:.45rem .8rem;
+        border-radius:999px;
+        border:1px solid rgba(255,215,0,.22);
+        background:rgba(0,0,0,.22);
+        color:rgba(255,215,0,.95);
+        font-weight:800;
+        letter-spacing:.3px;
+        margin-bottom: 1rem;
+    }
+
+    .home-badge__dot{
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        background:rgba(255,215,0,.95);
+        display:inline-block;
+    }
+
+    .home-hero__cta-link,
+    .home-class__cta-link{
+        text-decoration:none;
+    }
+
+    .home-hero__cta,
+    .home-class__cta{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+    }
+
+    .home-explore__header{
+        margin-bottom: .6rem;
+    }
+
+    .home-price__btn{
+        width:100%;
+        justify-content:center;
+        text-align:center;
+    }
+
+    /* ===== Tablet ===== */
+    @media (max-width: 1100px){
+        .home-hero{
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .home-hero__content h1{
+            font-size: clamp(3rem, 5vw, 4.3rem);
+            line-height: 1.02;
+        }
+
+        .home-hero__content p{
+            max-width: 100%;
+        }
+
+        .home-class{
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .home-class__content .section__header{
+            line-height: 1.12;
+        }
+    }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 860px){
+        .home-hero{
+            padding-top: 3.1rem;
+            gap: 1.6rem;
+        }
+
+        .home-badge{
+            font-size: .82rem;
+            padding: .42rem .72rem;
+            margin-bottom: .9rem;
+        }
+
+        .home-hero__content h4{
+            font-size: .95rem;
+            margin-bottom: .7rem;
+        }
+
+        .home-hero__content h1{
+            font-size: 2.35rem;
+            line-height: 1.02;
+            margin-bottom: .85rem;
+            letter-spacing: -.02em;
+        }
+
+        .home-hero__content p{
+            font-size: .98rem;
+            line-height: 1.72;
+            margin-bottom: 1.2rem;
+        }
+
+        .home-hero__cta-link,
+        .home-class__cta-link{
+            display:block;
+            width:100%;
+        }
+
+        .home-hero__cta,
+        .home-class__cta{
+            width:100%;
+            min-height: 50px;
+            text-align:center;
+        }
+
+        .home-hero__image{
+            min-height: 320px;
+        }
+
+        .home-explore{
+            padding-top: 2rem;
+        }
+
+        .home-explore .section__header,
+        .home-class__content .section__header,
+        .home-join .section__header,
+        .home-price .section__header{
+            font-size: 2rem;
+            line-height: 1.12;
+        }
+
+        .home-class{
+            gap: 1.7rem;
+            padding-top: 2.2rem;
+        }
+
+        .home-class__content p{
+            font-size: .98rem;
+            line-height: 1.72;
+            margin-bottom: 1.15rem;
+        }
+
+        .home-join{
+            padding-top: 2.2rem;
+        }
+
+        .home-join .section__subheader,
+        .home-price .section__subheader{
+            font-size: .98rem;
+            line-height: 1.7;
+        }
+
+        .home-join__image{
+            margin-top: 1.5rem;
+        }
+
+        .home-price{
+            padding-top: 2.2rem;
+            padding-bottom: 2.6rem;
+        }
+    }
+
+    /* ===== Small phones ===== */
+    @media (max-width: 640px){
+        .home-hero{
+            padding-top: 2.7rem;
+            gap: 1.35rem;
+        }
+
+        .home-badge{
+            font-size: .78rem;
+            padding: .38rem .65rem;
+        }
+
+        .home-hero__content h1{
+            font-size: 2rem;
+            line-height: 1.03;
+        }
+
+        .home-hero__content p{
+            font-size: .94rem;
+            line-height: 1.68;
+        }
+
+        .home-hero__image{
+            min-height: 270px;
+        }
+
+        .home-explore .section__header,
+        .home-class__content .section__header,
+        .home-join .section__header,
+        .home-price .section__header{
+            font-size: 1.72rem;
+            line-height: 1.12;
+        }
+
+        .home-explore__grid,
+        .home-price__grid{
+            gap: 1rem;
+        }
+
+        .home-explore .explore__card,
+        .home-price .price__card{
+            border-radius: 16px;
+        }
+
+        .home-explore .explore__card{
+            padding: 1.15rem 1rem;
+        }
+
+        .home-explore .explore__card h4{
+            font-size: 1rem;
+            margin-bottom: .55rem;
+        }
+
+        .home-explore .explore__card p{
+            font-size: .93rem;
+            line-height: 1.62;
+        }
+
+        .home-class{
+            gap: 1.35rem;
+        }
+
+        .home-class__image{
+            min-height: 300px;
+        }
+
+        .home-class .class__img-1{
+            width: 72%;
+        }
+
+        .home-class .class__img-2{
+            width: 48%;
+        }
+
+        .home-join__grid{
+            gap: .85rem;
+        }
+
+        .home-join .join__card{
+            padding: .95rem .9rem;
+            border-radius: 16px;
+        }
+
+        .home-join .join__card__content h4{
+            font-size: .98rem;
+        }
+
+        .home-join .join__card__content p{
+            font-size: .92rem;
+            line-height: 1.6;
+        }
+
+        .home-price .price__card__content h4{
+            font-size: 1rem;
+        }
+
+        .home-price .price__card__content h3{
+            font-size: 1.55rem;
+        }
+
+        .home-price .price__card__content p{
+            font-size: .92rem;
+            line-height: 1.62;
+        }
+
+        .home-price__btn{
+            min-height: 48px;
+        }
+    }
+
+    /* ===== Tiny phones ===== */
+    @media (max-width: 420px){
+        .home-hero__content h1{
+            font-size: 1.78rem;
+        }
+
+        .home-hero__image{
+            min-height: 230px;
+        }
+
+        .home-explore .section__header,
+        .home-class__content .section__header,
+        .home-join .section__header,
+        .home-price .section__header{
+            font-size: 1.55rem;
+        }
+
+        .home-class__image{
+            min-height: 250px;
+        }
+
+        .home-class .class__img-1{
+            width: 74%;
+        }
+
+        .home-class .class__img-2{
+            width: 50%;
+        }
+    }
+</style>
 
 {% endblock %}

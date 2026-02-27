@@ -20,11 +20,42 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 @csrf_exempt
+@login_required
 def process_payment(request, program_id):
     """
-    NOTE: This looks like an old Google Pay flow. Keep it for now, but fix the template path.
+    Old Google Pay flow.
+    Keep it protected so a user cannot create a second active membership.
     """
     program = get_object_or_404(TrainingProgram, pk=program_id)
+    today = date.today()
+
+    # Auto-expire old memberships first
+    Membership.objects.filter(
+        user=request.user,
+        status="active",
+        end_date__lt=today
+    ).update(status="expired")
+
+    # Block purchase if user already has an active membership
+    active_membership = Membership.objects.filter(
+        user=request.user,
+        status="active",
+        end_date__gte=today
+    ).select_related("program").first()
+
+    if active_membership:
+        if request.method == "POST":
+            return JsonResponse({
+                "success": False,
+                "error": f"You already have an active membership ({active_membership.program.name}). You can purchase a new one after it expires or contact the manager."
+            }, status=400)
+
+        messages.warning(
+            request,
+            f"You already have an active membership ({active_membership.program.name}). "
+            "You can purchase a new one after it expires or contact the manager."
+        )
+        return redirect("training_programs")
 
     if request.method == "POST":
         try:
@@ -32,21 +63,27 @@ def process_payment(request, program_id):
             if not payment_token:
                 raise ValueError("Payment token is missing.")
 
-            # Close previous active memberships (avoid multiple actives)
-            Membership.objects.filter(user=request.user, status="active").update(status="expired")
-
             Membership.objects.create(
                 user=request.user,
                 program=program,
-                start_date=date.today(),
-                end_date=date.today().replace(year=date.today().year + 1),
+                start_date=today,
+                end_date=today + timedelta(days=30),
                 status="active",
             )
+
             return JsonResponse({"success": True, "message": "Payment successful!"})
         except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
 
-    return render(request, "gym/payments.html", {"program": program})
+    return render(
+        request,
+        "gym/payments.html",
+        {
+            "program": program,
+            "program_id": program.id,
+            "stripe_public_key": settings.STRIPE_PUBLIC_KEY,
+        },
+    )
 
 
 @login_required
@@ -87,16 +124,27 @@ def training_programs(request):
     programs = TrainingProgram.objects.all()
     trainers = Trainer.objects.all()
 
-    # Auto-expire on page visit (cheap, effective)
+    # Auto-expire on page visit
     today = date.today()
-    Membership.objects.filter(user=request.user, status="active", end_date__lt=today).update(status="expired")
+    Membership.objects.filter(
+        user=request.user,
+        status="active",
+        end_date__lt=today
+    ).update(status="expired")
 
     user_memberships = Membership.objects.filter(user=request.user).order_by("-end_date")
+
+    active_membership = Membership.objects.filter(
+        user=request.user,
+        status="active",
+        end_date__gte=today
+    ).select_related("program").first()
 
     context = {
         "programs": programs,
         "trainers": trainers,
         "user_memberships": user_memberships,
+        "active_membership": active_membership,
     }
     return render(request, "gym/training_programs.html", context)
 
@@ -214,59 +262,80 @@ def trainer_detail(request, trainer_id):
 
 @login_required
 def payments(request):
-    program_id = request.GET.get('program_id')
+    program_id = request.GET.get("program_id")
     if not program_id:
         messages.error(request, "No training program selected.")
-        return redirect('training_programs')
+        return redirect("training_programs")
 
     program = get_object_or_404(TrainingProgram, pk=program_id)
+    today = date.today()
 
-    if request.method == 'POST':
-        token = request.POST.get('stripeToken')
-        google_pay_token = request.POST.get('google_pay_token')
+    # Auto-expire old active memberships first
+    Membership.objects.filter(
+        user=request.user,
+        status="active",
+        end_date__lt=today
+    ).update(status="expired")
+
+    # Check if user already has an active membership
+    active_membership = Membership.objects.filter(
+        user=request.user,
+        status="active",
+        end_date__gte=today
+    ).select_related("program").first()
+
+    if active_membership:
+        messages.warning(
+            request,
+            f"You already have an active membership ({active_membership.program.name}). "
+            "You can purchase a new one after it expires or contact the manager."
+        )
+        return redirect("training_programs")
+
+    if request.method == "POST":
+        token = request.POST.get("stripeToken")
+        google_pay_token = request.POST.get("google_pay_token")
 
         try:
             if token:
                 # Stripe Card payment
                 stripe.Charge.create(
                     amount=int(program.price * 100),
-                    currency='usd',
-                    description=f'Payment for program {program.name}',
+                    currency="usd",
+                    description=f"Payment for program {program.name}",
                     source=token,
                 )
 
             elif google_pay_token:
-                # Google Pay via Stripe PaymentIntent (if you actually use it)
+                # Google Pay via Stripe PaymentIntent
                 stripe.PaymentIntent.create(
                     amount=int(program.price * 100),
-                    currency='usd',
+                    currency="usd",
                     payment_method=google_pay_token,
-                    confirmation_method='manual',
+                    confirmation_method="manual",
                     confirm=True,
                 )
             else:
                 messages.error(request, "No payment token provided.")
                 return HttpResponseRedirect(f"{reverse('payments')}?program_id={program.id}")
 
-            # Create / update membership after successful charge
             Membership.objects.create(
                 user=request.user,
                 program=program,
-                start_date=date.today(),
-                end_date=date.today() + timedelta(days=30),
-                status='active'
+                start_date=today,
+                end_date=today + timedelta(days=30),
+                status="active",
             )
 
             messages.success(request, f"Congrats! You bought: {program.name} 💪")
-            return redirect('profile')
+            return redirect("profile")
 
         except stripe.error.CardError as e:
-            # card declined / insufficient funds etc.
             msg = getattr(e, "user_message", None) or str(e)
             messages.error(request, f"Payment failed: {msg}")
             return HttpResponseRedirect(f"{reverse('payments')}?program_id={program.id}")
 
-        except stripe.error.StripeError as e:
+        except stripe.error.StripeError:
             messages.error(request, "Payment failed. Stripe error. Please try again.")
             return HttpResponseRedirect(f"{reverse('payments')}?program_id={program.id}")
 
@@ -274,12 +343,15 @@ def payments(request):
             messages.error(request, f"Payment failed. {e}")
             return HttpResponseRedirect(f"{reverse('payments')}?program_id={program.id}")
 
-    # GET
-    return render(request, 'gym/payments.html', {
-        'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
-        'program_id': program.id,
-        'program': program
-    })
+    return render(
+        request,
+        "gym/payments.html",
+        {
+            "stripe_public_key": settings.STRIPE_PUBLIC_KEY,
+            "program_id": program.id,
+            "program": program,
+        },
+    )
 
 @csrf_exempt
 def stripe_webhook(request):

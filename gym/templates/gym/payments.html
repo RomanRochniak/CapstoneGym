@@ -5,149 +5,82 @@
 
 {% block content %}
 
-<div style="
-  background:
-    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
-    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
-    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
-  min-height: 100vh;
-  padding: 4.2rem 1rem 3rem;
-">
+<div class="payments-page-shell">
 
-  <div style="max-width: 920px; margin: 0 auto;">
-    <div style="
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      box-shadow: 0 18px 40px rgba(0,0,0,.35);
-      overflow: hidden;
-    ">
+  <div class="payments-page-inner">
+    <div class="payments-card-shell">
+
       {# Header #}
-      <div style="padding: 1.4rem 1.6rem; border-bottom: 1px solid rgba(255,255,255,.08);">
-        <div style="
-          display:inline-flex;
-          align-items:center;
-          gap:.6rem;
-          padding:.45rem .8rem;
-          border-radius:999px;
-          border:1px solid rgba(255,215,0,.22);
-          background:rgba(0,0,0,.22);
-          color:rgba(255,215,0,.95);
-          font-weight:800;
-          letter-spacing:.3px;
-          margin-bottom: 1rem;
-        ">
-          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
+      <div class="payments-head">
+        <div class="payments-badge">
+          <span class="payments-badge__dot"></span>
           Secure Checkout
         </div>
 
-        <h2 style="margin:0; color:#fff; font-weight: 900; font-size: 2rem; line-height:1.1;">
+        <h2 class="payments-title">
           Pay for Training Program
         </h2>
-        <p style="margin:.55rem 0 0; color: rgba(255,255,255,.72); line-height: 1.7;">
+
+        <p class="payments-subtitle">
           Complete your payment securely with Stripe. No card data is stored on our server.
         </p>
       </div>
 
       {# Body #}
-      <div style="padding: 1.6rem; display:grid; grid-template-columns: 1.1fr .9fr; gap: 16px;">
+      <div class="payments-body">
 
         {# Program summary #}
-        <div style="
-          border-radius: 16px;
-          border: 1px solid rgba(255,255,255,.10);
-          background: rgba(0,0,0,.18);
-          padding: 1.2rem 1.2rem;
-        ">
-          <div style="color: rgba(255,215,0,.95); font-weight: 900; font-size: 1.2rem; margin-bottom: .3rem;">
+        <div class="payments-summary-card">
+          <div class="payments-summary-card__title">
             {{ program.name }}
           </div>
-          <div style="color: rgba(255,255,255,.78); line-height: 1.7;">
+
+          <div class="payments-summary-card__description">
             {{ program.description }}
           </div>
 
-          <div style="
-            margin-top: 1rem;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            padding: .9rem 1rem;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,.10);
-            background: rgba(255,255,255,.03);
-          ">
-            <span style="color: rgba(255,255,255,.8); font-weight: 700;">Total</span>
-            <span style="color:#fff; font-weight: 900; font-size: 1.35rem;">
-              ${{ program.price }}
-            </span>
+          <div class="payments-total-box">
+            <span class="payments-total-box__label">Total</span>
+            <span class="payments-total-box__value">${{ program.price }}</span>
           </div>
 
-          <div style="margin-top: 12px; color: rgba(255,255,255,.60); font-size:.95rem; line-height:1.6;">
-            Tip: use Stripe test card <b style="color:#fff;">4242 4242 4242 4242</b>, any future date, any CVC.
+          <div class="payments-tip">
+            Tip: use Stripe test card <b>4242 4242 4242 4242</b>, any future date, any CVC.
           </div>
 
-          <div style="margin-top: 14px;">
-            <a href="{% url 'training_programs' %}" class="btn price__btn" style="text-decoration:none;">
+          <div class="payments-summary-actions">
+            <a href="{% url 'training_programs' %}" class="btn price__btn payments-secondary-btn" style="text-decoration:none;">
               Back to programs
             </a>
           </div>
         </div>
 
         {# Payment form #}
-        <div style="
-          border-radius: 16px;
-          border: 1px solid rgba(255,255,255,.10);
-          background: rgba(0,0,0,.18);
-          padding: 1.2rem 1.2rem;
-        ">
+        <div class="payments-form-card">
 
-          {# If Stripe key is missing -> show a clean disabled state #}
           {% if not stripe_public_key %}
-            <div style="
-              padding: 12px 14px;
-              border-radius: 14px;
-              background: rgba(245,158,11,.12);
-              border: 1px solid rgba(245,158,11,.25);
-              color: rgba(255,255,255,.9);
-              line-height:1.6;
-            ">
+            <div class="payments-warning-box">
               Payments are not configured on this environment.<br>
-              Add <b style="color:#fff;">STRIPE_PUBLIC_KEY</b> and <b style="color:#fff;">STRIPE_SECRET_KEY</b> to your <code>.env</code>.
+              Add <b>STRIPE_PUBLIC_KEY</b> and <b>STRIPE_SECRET_KEY</b> to your <code>.env</code>.
             </div>
           {% else %}
 
-            <form action="{% url 'payments' %}?program_id={{ program_id }}" method="post" id="payment-form" style="margin:0;">
+            <form action="{% url 'payments' %}?program_id={{ program_id }}" method="post" id="payment-form" class="payments-form">
               {% csrf_token %}
 
-              <label style="color: rgba(255,255,255,.85); font-weight: 800; margin-bottom: 8px; display:block;">
+              <label class="payments-label">
                 Card details
               </label>
 
-              <div id="card-element" style="
-                padding: 12px 14px;
-                border-radius: 14px;
-                border: 1px solid rgba(255,255,255,.12);
-                background: rgba(255,255,255,.04);
-              "></div>
+              <div id="card-element" class="payments-card-element"></div>
 
-              <div id="card-errors" role="alert" style="
-                margin-top: 10px;
-                color: rgba(239,68,68,.95);
-                font-weight: 700;
-                min-height: 20px;
-              "></div>
+              <div id="card-errors" role="alert" class="payments-card-errors"></div>
 
-              <button type="submit" id="pay-btn" class="btn btn-primary" style="
-                width:100%;
-                border-radius: 14px;
-                padding: .85rem 1rem;
-                font-weight: 900;
-                margin-top: 10px;
-              ">
+              <button type="submit" id="pay-btn" class="btn btn-primary payments-submit-btn">
                 Submit Payment
               </button>
 
-              <div style="margin-top: 10px; color: rgba(255,255,255,.60); font-size:.92rem; line-height:1.6;">
+              <div class="payments-note">
                 By paying, you agree to the club rules and understand this is a training program purchase (not medical service).
               </div>
             </form>
@@ -159,6 +92,317 @@
   </div>
 
 </div>
+
+<style>
+  .payments-page-shell{
+    background:
+      radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+      radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+      linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+    min-height: 100vh;
+    padding: 4.2rem 1rem 3rem;
+  }
+
+  .payments-page-inner{
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  .payments-card-shell{
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.03);
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    overflow: hidden;
+  }
+
+  .payments-head{
+    padding: 1.4rem 1.6rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .payments-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.6rem;
+    padding:.45rem .8rem;
+    border-radius:999px;
+    border:1px solid rgba(255,215,0,.22);
+    background:rgba(0,0,0,.22);
+    color:rgba(255,215,0,.95);
+    font-weight:800;
+    letter-spacing:.3px;
+    margin-bottom: 1rem;
+  }
+
+  .payments-badge__dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,215,0,.95);
+    display:inline-block;
+  }
+
+  .payments-title{
+    margin:0;
+    color:#fff;
+    font-weight: 900;
+    font-size: 2rem;
+    line-height:1.1;
+  }
+
+  .payments-subtitle{
+    margin:.55rem 0 0;
+    color: rgba(255,255,255,.72);
+    line-height: 1.7;
+    max-width: 720px;
+  }
+
+  .payments-body{
+    padding: 1.6rem;
+    display:grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 16px;
+  }
+
+  .payments-summary-card,
+  .payments-form-card{
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.18);
+    padding: 1.2rem 1.2rem;
+  }
+
+  .payments-summary-card__title{
+    color: rgba(255,215,0,.95);
+    font-weight: 900;
+    font-size: 1.2rem;
+    margin-bottom: .3rem;
+    line-height: 1.3;
+  }
+
+  .payments-summary-card__description{
+    color: rgba(255,255,255,.78);
+    line-height: 1.7;
+  }
+
+  .payments-total-box{
+    margin-top: 1rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+    padding: .9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.03);
+  }
+
+  .payments-total-box__label{
+    color: rgba(255,255,255,.8);
+    font-weight: 700;
+  }
+
+  .payments-total-box__value{
+    color:#fff;
+    font-weight: 900;
+    font-size: 1.35rem;
+  }
+
+  .payments-tip{
+    margin-top: 12px;
+    color: rgba(255,255,255,.60);
+    font-size:.95rem;
+    line-height:1.6;
+  }
+
+  .payments-tip b{
+    color:#fff;
+  }
+
+  .payments-summary-actions{
+    margin-top: 14px;
+  }
+
+  .payments-secondary-btn{
+    border-radius: 14px;
+  }
+
+  .payments-warning-box{
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(245,158,11,.12);
+    border: 1px solid rgba(245,158,11,.25);
+    color: rgba(255,255,255,.9);
+    line-height:1.6;
+  }
+
+  .payments-warning-box b{
+    color:#fff;
+  }
+
+  .payments-form{
+    margin:0;
+  }
+
+  .payments-label{
+    color: rgba(255,255,255,.85);
+    font-weight: 800;
+    margin-bottom: 8px;
+    display:block;
+  }
+
+  .payments-card-element{
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+  }
+
+  .payments-card-errors{
+    margin-top: 10px;
+    color: rgba(239,68,68,.95);
+    font-weight: 700;
+    min-height: 20px;
+    line-height: 1.5;
+  }
+
+  .payments-submit-btn{
+    width:100%;
+    border-radius: 14px;
+    padding: .85rem 1rem;
+    font-weight: 900;
+    margin-top: 10px;
+    min-height: 50px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .payments-note{
+    margin-top: 10px;
+    color: rgba(255,255,255,.60);
+    font-size:.92rem;
+    line-height:1.6;
+  }
+
+  /* ===== Tablet ===== */
+  @media (max-width: 980px){
+    .payments-page-shell{
+      padding: 3.5rem 1rem 2.5rem;
+    }
+
+    .payments-body{
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ===== Mobile ===== */
+  @media (max-width: 768px){
+    .payments-page-shell{
+      padding: 3rem 1rem 2rem;
+    }
+
+    .payments-head{
+      padding: 1.1rem 1rem;
+    }
+
+    .payments-badge{
+      font-size: .84rem;
+      padding: .42rem .72rem;
+      margin-bottom: .9rem;
+    }
+
+    .payments-title{
+      font-size: 1.85rem;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+    }
+
+    .payments-subtitle{
+      font-size: .98rem;
+      line-height: 1.72;
+      margin-top: .55rem;
+    }
+
+    .payments-body{
+      padding: 1rem;
+      gap: 12px;
+    }
+
+    .payments-summary-card,
+    .payments-form-card{
+      padding: 1rem;
+    }
+
+    .payments-total-box{
+      padding: .85rem .9rem;
+    }
+
+    .payments-total-box__value{
+      font-size: 1.2rem;
+    }
+
+    .payments-secondary-btn{
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .payments-tip,
+    .payments-note,
+    .payments-warning-box{
+      font-size: .93rem;
+    }
+  }
+
+  /* ===== Small phones ===== */
+  @media (max-width: 480px){
+    .payments-page-shell{
+      padding: 2.7rem .85rem 1.8rem;
+    }
+
+    .payments-title{
+      font-size: 1.62rem;
+    }
+
+    .payments-subtitle{
+      font-size: .94rem;
+    }
+
+    .payments-summary-card__title{
+      font-size: 1.06rem;
+    }
+
+    .payments-summary-card__description{
+      font-size: .94rem;
+      line-height: 1.65;
+    }
+
+    .payments-total-box__label{
+      font-size: .94rem;
+    }
+
+    .payments-total-box__value{
+      font-size: 1.08rem;
+    }
+
+    .payments-label{
+      font-size: .94rem;
+    }
+
+    .payments-submit-btn{
+      min-height: 48px;
+      font-size: .96rem;
+    }
+
+    .payments-tip,
+    .payments-note,
+    .payments-warning-box{
+      font-size: .9rem;
+      line-height: 1.58;
+    }
+  }
+</style>
 
 {% if stripe_public_key %}
   <!-- Stripe.js -->

@@ -5,173 +5,344 @@
 
 {% block content %}
 
-<div style="
-  background:
-    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
-    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
-    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
-">
+<div class="tp-page-shell">
 
-{# HERO #}
-<section style="padding: 4.5rem 1rem 2.5rem;">
-  <div style="max-width:1200px; margin:0 auto;">
-    <div style="
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 1.5rem;
-      flex-wrap:wrap;
-    ">
-      <div class="tp-left" style="max-width: 720px;">
-        <div class="tp-fade" style="
-          display:inline-flex;
-          align-items:center;
-          gap:.6rem;
-          padding:.45rem .8rem;
-          border-radius:999px;
-          border:1px solid rgba(255,215,0,.22);
-          background:rgba(0,0,0,.22);
-          color:rgba(255,215,0,.95);
-          font-weight:800;
-          letter-spacing:.3px;
-          margin-bottom: 1.2rem;
-        ">
-          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
-          Training Programs • Choose your path
+  {# HERO #}
+  <section class="tp-hero">
+    <div class="tp-hero__wrap">
+      <div class="tp-hero__grid">
+        <div class="tp-left tp-hero__content">
+          <div class="tp-badge tp-fade">
+            <span class="tp-badge__dot"></span>
+            Training Programs • Choose your path
+          </div>
+
+          <h1 class="tp-hero__title tp-fade">
+            Train with <span class="tp-gold">elite coaches</span>
+            <br class="tp-hero__break" />
+            and follow a plan that actually <span class="tp-orange">works</span>.
+          </h1>
+
+          <p class="tp-hero__text tp-fade">
+            Pick a program, get guidance from a coach, and stay consistent.
+            No fluff — just structure and results.
+          </p>
+
+          <div class="tp-hero__actions tp-fade">
+            <a href="#programs" class="btn" style="text-decoration:none;">View Programs</a>
+            <a href="#coaches" class="btn price__btn" style="text-decoration:none;">Meet Coaches</a>
+          </div>
         </div>
 
-        <h1 class="tp-fade" style="font-size: 3.1rem; line-height: 1.1; font-weight: 900; color:#fff; margin-bottom: .9rem;">
-          Train with <span style="color:#FFD700;">elite coaches</span> <br/>
-          and follow a plan that actually <span style="color:#f9ac54;">works</span>.
-        </h1>
+        <div class="tp-right tp-hero__visual">
+          <div class="tp-hero__image-card">
+            <div class="tp-hero__image-wrap">
+              <img src="{% static 'gym/assets/joinus.jpg' %}" alt="Training" class="tp-hero__image">
+              <div class="tp-hero__overlay"></div>
 
-        <p class="tp-fade" style="color: rgba(255,255,255,.78); line-height:1.75; font-size: 1.05rem;">
-          Pick a program, get guidance from a coach, and stay consistent.
-          No fluff — just structure and results.
-        </p>
-
-        <div class="tp-fade" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.5rem;">
-          <a href="#programs" class="btn" style="text-decoration:none;">View Programs</a>
-          <a href="#coaches" class="btn price__btn" style="text-decoration:none;">Meet Coaches</a>
-        </div>
-      </div>
-
-      <div class="tp-right" style="flex:1; min-width: 320px; max-width: 520px;">
-        <div style="
-          border-radius: 18px;
-          overflow:hidden;
-          border: 1px solid rgba(255,255,255,.10);
-          box-shadow: 0 18px 40px rgba(0,0,0,.45);
-          background: rgba(255,255,255,.03);
-        ">
-          <div style="position:relative;">
-            <img src="{% static 'gym/assets/joinus.jpg' %}" alt="Training" style="width:100%; height: 320px; object-fit:cover;">
-            <div style="position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.70));"></div>
-            <div style="position:absolute; left:18px; bottom:14px;">
-              <div style="color:#fff; font-weight:900; font-size:1.05rem;">Consistency is the program</div>
-              <div style="color:rgba(255,255,255,.75);">Choose → Commit → Progress</div>
+              <div class="tp-hero__caption">
+                <div class="tp-hero__caption-title">Consistency is the program</div>
+                <div class="tp-hero__caption-text">Choose → Commit → Progress</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {# quick perks strip #}
-    <div style="
-      margin-top: 2.2rem;
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.2rem;
-    ">
-      <div class="price__card tp-fade" style="padding: 1.2rem 1.2rem;">
-        <div class="price__card__content" style="margin-bottom:0;">
-          <h4 style="margin-bottom:.4rem;">01. Clear Structure</h4>
-          <p style="margin-bottom:0;">A plan you can follow. No guessing. No chaos.</p>
+      {# quick perks strip #}
+      <div class="tp-perks">
+        <div class="price__card tp-fade tp-perk-card">
+          <div class="price__card__content tp-perk-card__content">
+            <h4>01. Clear Structure</h4>
+            <p>A plan you can follow. No guessing. No chaos.</p>
+          </div>
         </div>
-      </div>
-      <div class="price__card tp-fade" style="padding: 1.2rem 1.2rem;">
-        <div class="price__card__content" style="margin-bottom:0;">
-          <h4 style="margin-bottom:.4rem;">02. Real Coaches</h4>
-          <p style="margin-bottom:0;">Guidance and accountability when you need it.</p>
+
+        <div class="price__card tp-fade tp-perk-card">
+          <div class="price__card__content tp-perk-card__content">
+            <h4>02. Real Coaches</h4>
+            <p>Guidance and accountability when you need it.</p>
+          </div>
         </div>
-      </div>
-      <div class="price__card tp-fade" style="padding: 1.2rem 1.2rem;">
-        <div class="price__card__content" style="margin-bottom:0;">
-          <h4 style="margin-bottom:.4rem;">03. Results Mindset</h4>
-          <p style="margin-bottom:0;">Show up, train hard, recover — repeat.</p>
+
+        <div class="price__card tp-fade tp-perk-card">
+          <div class="price__card__content tp-perk-card__content">
+            <h4>03. Results Mindset</h4>
+            <p>Show up, train hard, recover — repeat.</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-{# COACHES #}
-<section id="coaches" class="section__container trainers__container" style="padding-top: 2.5rem;">
-  <h2 class="section__header tp-fade">Meet Our Elite Coaches</h2>
-  <p class="section__subheader tp-fade">Highly qualified and dedicated to your success.</p>
+  {# COACHES #}
+  <section id="coaches" class="section__container trainers__container tp-coaches-section">
+    <h2 class="section__header tp-fade">Meet Our Elite Coaches</h2>
+    <p class="section__subheader tp-fade">Highly qualified and dedicated to your success.</p>
 
-  <div class="team__grid" style="margin-top: 2.2rem;">
-    {% for trainer in trainers %}
-      <div class="team__member tp-fade">
-        <div class="team__member-image">
-          {% if trainer.get_photo %}
-            <img src="{{ trainer.get_photo }}" alt="{{ trainer.name }}" class="team__photo" />
-          {% else %}
-            <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" />
-          {% endif %}
+    <div class="team__grid tp-coaches-grid">
+      {% for trainer in trainers %}
+        <div class="team__member tp-fade">
+          <div class="team__member-image">
+            {% if trainer.get_photo %}
+              <img src="{{ trainer.get_photo }}" alt="{{ trainer.name }}" class="team__photo" />
+            {% else %}
+              <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" />
+            {% endif %}
+          </div>
+
+          <div class="team__member-info">
+            <h3 class="team__name">{{ trainer.name }}</h3>
+            <p class="team__role">{{ trainer.specialization }}</p>
+            <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
+          </div>
         </div>
+      {% endfor %}
+    </div>
+  </section>
 
-        <div class="team__member-info">
-          <h3 class="team__name">{{ trainer.name }}</h3>
-          <p class="team__role">{{ trainer.specialization }}</p>
-          <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-</section>
-
-{# PROGRAMS #}
-<section id="programs" class="section__container price__container" style="padding-top: 2.5rem;">
+  {# PROGRAMS #}
+<section id="programs" class="section__container price__container tp-programs-section">
   <h2 class="section__header tp-fade">Programs & Pricing</h2>
   <p class="section__subheader tp-fade">
     Choose your plan. Simple, clear, and focused on progress.
   </p>
 
-  <div class="price__grid" style="margin-top: 2.6rem;">
-    {% for program in programs %}
-      <div class="price__card tp-fade" id="program-{{ program.id }}">
-        <div class="price__card__content">
-          <h4>{{ program.name }}</h4>
-          <h3>${{ program.price }}</h3>
+  {% if active_membership %}
+    <div style="
+      margin-top: 1.2rem;
+      margin-bottom: 1.2rem;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(245,158,11,.25);
+      background: rgba(245,158,11,.10);
+      color: rgba(255,255,255,.92);
+      line-height: 1.6;
+      font-weight: 700;
+    ">
+      You already have an active membership:
+      <span style="color:#FFD700; font-weight:900;">{{ active_membership.program.name }}</span>.
+      You can purchase a new one after it expires or contact the manager.
+    </div>
+  {% endif %}
+    <div class="price__grid tp-programs-grid">
+      {% for program in programs %}
+        <div class="price__card tp-fade" id="program-{{ program.id }}">
+          <div class="price__card__content">
+            <h4>{{ program.name }}</h4>
+            <h3>${{ program.price }}</h3>
 
-          <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
+            <p><i class="ri-checkbox-circle-line"></i> {{ program.description }}</p>
 
-          {% if program.trainer %}
-            <p><i class="ri-user-star-fill"></i> Coach: {{ program.trainer.name }}</p>
+            {% if program.trainer %}
+              <p><i class="ri-user-star-fill"></i> Coach: {{ program.trainer.name }}</p>
+            {% endif %}
+          </div>
+
+          {% if active_membership %}
+            <button
+              type="button"
+              class="btn price__btn tp-program-btn"
+              style="opacity:.65; cursor:not-allowed;"
+              onclick="showMembershipBlockedMessage()"
+            >
+              Membership Active
+            </button>
+          {% else %}
+            <a href="{% url 'payments' %}?program_id={{ program.id }}" class="btn price__btn tp-program-btn">
+              Pay for {{ program.name }}
+            </a>
           {% endif %}
         </div>
+      {% endfor %}
+    </div>
+  </section>
 
-        <a href="{% url 'payments' %}?program_id={{ program.id }}" class="btn price__btn">
-          Pay for {{ program.name }}
-        </a>
-      </div>
-    {% endfor %}
-  </div>
-</section>
-
-{# CTA #}
-<section class="cta tp-fade" style="margin-bottom: 0; padding-bottom: 3.5rem;">
-  <h2 class="cta__header">Ready to start?</h2>
-  <p class="cta__text">
-    Pick a program, commit for 30 days, and you’ll feel the difference.
-  </p>
-  <a href="{% url 'join' %}" class="btn">Join Us Now</a>
-</section>
+  {# CTA #}
+  <section class="cta tp-fade tp-cta">
+    <h2 class="cta__header">Ready to start?</h2>
+    <p class="cta__text">
+      Pick a program, commit for 30 days, and you’ll feel the difference.
+    </p>
+    <a href="{% url 'join' %}" class="btn">Join Us Now</a>
+  </section>
 
 </div>
 
 <style>
+  .tp-page-shell{
+    background:
+      radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+      radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+      linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+  }
+
+  .tp-gold{ color:#FFD700; }
+  .tp-orange{ color:#f9ac54; }
+
+  .tp-hero{
+    padding: 4.5rem 1rem 2.5rem;
+  }
+
+  .tp-hero__wrap{
+    max-width:1200px;
+    margin:0 auto;
+  }
+
+  .tp-hero__grid{
+    display:grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+    gap: 1.8rem;
+    align-items: center;
+  }
+
+  .tp-hero__content{
+    min-width: 0;
+  }
+
+  .tp-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.6rem;
+    padding:.45rem .8rem;
+    border-radius:999px;
+    border:1px solid rgba(255,215,0,.22);
+    background:rgba(0,0,0,.22);
+    color:rgba(255,215,0,.95);
+    font-weight:800;
+    letter-spacing:.3px;
+    margin-bottom: 1.2rem;
+  }
+
+  .tp-badge__dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,215,0,.95);
+    display:inline-block;
+  }
+
+  .tp-hero__title{
+    font-size: 3.1rem;
+    line-height: 1.1;
+    font-weight: 900;
+    color:#fff;
+    margin-bottom: .9rem;
+  }
+
+  .tp-hero__text{
+    color: rgba(255,255,255,.78);
+    line-height:1.75;
+    font-size: 1.05rem;
+    max-width: 700px;
+  }
+
+  .tp-hero__actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:1.5rem;
+  }
+
+  .tp-hero__visual{
+    min-width: 0;
+  }
+
+  .tp-hero__image-card{
+    border-radius: 18px;
+    overflow:hidden;
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 18px 40px rgba(0,0,0,.45);
+    background: rgba(255,255,255,.03);
+  }
+
+  .tp-hero__image-wrap{
+    position:relative;
+  }
+
+  .tp-hero__image{
+    width:100%;
+    height: 320px;
+    object-fit:cover;
+    display:block;
+  }
+
+  .tp-hero__overlay{
+    position:absolute;
+    inset:0;
+    background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.70));
+  }
+
+  .tp-hero__caption{
+    position:absolute;
+    left:18px;
+    right:18px;
+    bottom:14px;
+  }
+
+  .tp-hero__caption-title{
+    color:#fff;
+    font-weight:900;
+    font-size:1.05rem;
+    margin-bottom: .2rem;
+  }
+
+  .tp-hero__caption-text{
+    color:rgba(255,255,255,.75);
+    line-height:1.45;
+  }
+
+  .tp-perks{
+    margin-top: 2.2rem;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+
+  .tp-perk-card{
+    padding: 1.2rem 1.2rem;
+  }
+
+  .tp-perk-card__content{
+    margin-bottom:0 !important;
+  }
+
+  .tp-perk-card__content h4{
+    margin-bottom:.4rem;
+  }
+
+  .tp-perk-card__content p{
+    margin-bottom:0;
+    line-height: 1.65;
+  }
+
+  .tp-coaches-section{
+    padding-top: 2.5rem;
+  }
+
+  .tp-coaches-grid{
+    margin-top: 2.2rem;
+  }
+
+  .tp-programs-section{
+    padding-top: 2.5rem;
+  }
+
+  .tp-programs-grid{
+    margin-top: 2.6rem;
+  }
+
+  .tp-program-btn{
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .tp-cta{
+    margin-bottom: 0;
+    padding-bottom: 3.5rem;
+  }
+
   .program-highlight {
     outline: 2px solid rgba(255, 215, 0, 0.9);
     box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.15);
@@ -179,7 +350,7 @@
     transition: box-shadow .25s ease, outline .25s ease;
   }
 
-  /* ===== Training Programs: safe animations (no blank space) ===== */
+  /* ===== Training Programs: safe animations ===== */
   .tp-fade, .tp-left, .tp-right { opacity: 1; transform: none; }
 
   .tp-ready .tp-fade,
@@ -190,16 +361,183 @@
     transition: opacity .55s ease, transform .55s ease;
     will-change: opacity, transform;
   }
+
   .tp-ready .tp-left{ transform: translateX(-26px); }
   .tp-ready .tp-right{ transform: translateX(26px); }
 
   .tp-show{ opacity: 1 !important; transform: translate(0,0) !important; }
 
-  @media (max-width: 980px){
-    section[style*="padding: 4.5rem"] > div > div { flex-direction: column !important; }
+  /* ===== Tablet ===== */
+  @media (max-width: 1100px){
+    .tp-hero__grid{
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .tp-hero__title{
+      font-size: 2.65rem;
+    }
+
+    .tp-hero__text{
+      max-width: 100%;
+    }
+
+    .tp-hero__visual{
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tp-perks{
+      grid-template-columns: 1fr;
+    }
   }
-  @media (max-width: 860px){
-    section[style*="margin-top: 2.2rem"] { grid-template-columns: 1fr !important; }
+
+  /* ===== Mobile ===== */
+  @media (max-width: 768px){
+    .tp-hero{
+      padding: 3.4rem 1rem 2rem;
+    }
+
+    .tp-badge{
+      font-size: .84rem;
+      padding: .42rem .72rem;
+      margin-bottom: 1rem;
+    }
+
+    .tp-hero__title{
+      font-size: 2.12rem;
+      line-height: 1.08;
+      margin-bottom: .85rem;
+      letter-spacing: -.02em;
+    }
+
+    .tp-hero__break{
+      display: none;
+    }
+
+    .tp-hero__text{
+      font-size: .98rem;
+      line-height: 1.72;
+    }
+
+    .tp-hero__actions{
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      margin-top: 1.3rem;
+    }
+
+    .tp-hero__actions .btn,
+    .tp-hero__actions .price__btn{
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .tp-hero__image{
+      height: 280px;
+    }
+
+    .tp-hero__caption{
+      left:14px;
+      right:14px;
+      bottom:14px;
+    }
+
+    .tp-hero__caption-title{
+      font-size: 1rem;
+    }
+
+    .tp-hero__caption-text{
+      font-size: .92rem;
+    }
+
+    .tp-perks{
+      gap: .9rem;
+      margin-top: 1.5rem;
+    }
+
+    .tp-perk-card{
+      padding: 1.05rem 1rem;
+    }
+
+    .tp-perk-card__content h4{
+      font-size: 1rem;
+    }
+
+    .tp-perk-card__content p{
+      font-size: .95rem;
+      line-height: 1.6;
+    }
+
+    .tp-coaches-section{
+      padding-top: 1.1rem;
+    }
+
+    .tp-programs-section{
+      padding-top: 1.2rem;
+    }
+
+    .tp-programs-grid{
+      margin-top: 1.7rem;
+    }
+
+    .tp-program-btn{
+      min-height: 48px;
+      padding-inline: 1rem;
+    }
+
+    .tp-cta{
+      padding-bottom: 2.4rem;
+    }
+
+    .tp-cta .cta__header{
+      font-size: 2rem;
+      line-height: 1.15;
+    }
+
+    .tp-cta .cta__text{
+      font-size: .98rem;
+      line-height: 1.7;
+      max-width: 100%;
+      padding-inline: .2rem;
+    }
+  }
+
+  /* ===== Small phones ===== */
+  @media (max-width: 480px){
+    .tp-hero{
+      padding: 3rem .85rem 1.8rem;
+    }
+
+    .tp-hero__title{
+      font-size: 1.8rem;
+      line-height: 1.08;
+    }
+
+    .tp-hero__text{
+      font-size: .94rem;
+    }
+
+    .tp-hero__image{
+      height: 235px;
+    }
+
+    .tp-perk-card{
+      padding: 1rem .92rem;
+      border-radius: 16px;
+    }
+
+    .tp-cta .cta__header{
+      font-size: 1.7rem;
+    }
+
+    .tp-cta .btn{
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+    }
   }
 </style>
 
@@ -217,7 +555,7 @@
     }
   }
 
-  // page-scoped animations (no conflicts with your global script.js)
+  // page-scoped animations
   document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.classList.add("tp-ready");
 
@@ -243,4 +581,9 @@
 })();
 </script>
 
+<script>
+  function showMembershipBlockedMessage() {
+    alert("You already have an active membership. You can purchase a new one after it expires or contact the manager.");
+  }
+</script>
 {% endblock %}

@@ -5,202 +5,345 @@
 
 {% block content %}
 
-<div style="
-  background:
-    radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
-    radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
-    linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
-">
+<div class="about-page-shell">
 
-{# CINEMATIC HERO #}
-<section style="
-  position: relative;
-  padding: 5rem 1rem 3.5rem;
-  overflow: hidden;
-">
-  <div style="
+  {# CINEMATIC HERO #}
+  <section class="about-hero">
+    <div class="about-hero__grid">
+      <div class="tp-left">
+        <div class="about-badge tp-fade">
+          <span class="about-badge__dot"></span>
+          RoshaClub • Built Different
+        </div>
+
+        <h1 class="about-hero__title tp-fade">
+          A gym that feels like a <span class="about-gold">family</span> —
+          <br class="about-hero__break">
+          but trains like a <span class="about-orange">war room</span>.
+        </h1>
+
+        <p class="about-hero__text tp-fade">
+          RoshaClub started in a small garage. No sponsors, no excuses — just discipline.
+          Today it’s a full community where people show up, work hard, and actually change.
+        </p>
+
+        <div class="about-hero__actions tp-fade">
+          <a href="{% url 'join' %}" class="btn" style="text-decoration:none;">Join Us Now</a>
+          <a href="#team" class="btn price__btn" style="text-decoration:none;">Meet the Team</a>
+        </div>
+
+        <div class="about-stats">
+          <div class="about-stat tp-fade">
+            <div class="about-stat__value">4</div>
+            <div class="about-stat__label">Founders & coaches</div>
+          </div>
+
+          <div class="about-stat tp-fade">
+            <div class="about-stat__value">∞</div>
+            <div class="about-stat__label">No-excuses mindset</div>
+          </div>
+
+          <div class="about-stat tp-fade">
+            <div class="about-stat__value">100%</div>
+            <div class="about-stat__label">Community driven</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-hero__visual tp-right">
+        <div class="about-hero__image-card">
+          <div class="about-hero__image-wrap">
+            <img
+              src="{% static 'gym/assets/garage_start.jpg' %}"
+              alt="Garage Beginnings"
+              class="about-hero__image"
+            >
+            <div class="about-hero__overlay"></div>
+
+            <div class="about-hero__caption">
+              <div class="about-hero__caption-title">From garage to glory</div>
+              <div class="about-hero__caption-text">Discipline → consistency → results</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-hero__glow tp-fade"></div>
+      </div>
+    </div>
+  </section>
+
+  {# STORY STRIP #}
+  <section class="about-story">
+    <div class="about-story__grid">
+      <div class="price__card tp-fade about-story__card">
+        <div class="price__card__content about-story__content">
+          <h4>01. The Beginning</h4>
+          <p>A small garage, rusty dumbbells, and four people who refused to stay average.</p>
+        </div>
+      </div>
+
+      <div class="price__card tp-fade about-story__card">
+        <div class="price__card__content about-story__content">
+          <h4>02. The Culture</h4>
+          <p>We don’t “motivate”. We build habits. You either show up — or you don’t.</p>
+        </div>
+      </div>
+
+      <div class="price__card tp-fade about-story__card">
+        <div class="price__card__content about-story__content">
+          <h4>03. The Result</h4>
+          <p>Stronger bodies. Sharper minds. A club that actually holds you accountable.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ONE TEAM #}
+  <section id="team" class="section__container trainers__container about-team-section">
+    <h2 class="section__header tp-fade">The Founders (and Your Coaches)</h2>
+    <p class="section__subheader tp-fade">
+      Same people who built RoshaClub — same people who train you.
+    </p>
+
+    <div class="team__grid">
+      {% for trainer in trainers %}
+        <div class="team__member tp-fade">
+          <div class="team__member-image">
+            {% if trainer.get_photo %}
+              <img src="{{ trainer.get_photo }}" alt="{{ trainer.name }}" class="team__photo" />
+            {% else %}
+              <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" />
+            {% endif %}
+          </div>
+
+          <div class="team__member-info">
+            <h3 class="team__name">{{ trainer.name }}</h3>
+            <p class="team__role">{{ trainer.specialization }}</p>
+
+            {% if user.is_authenticated %}
+              <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
+            {% else %}
+              <a href="{% url 'join' %}" class="btn btn-trainer">View Profile</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# CTA #}
+  <section class="cta tp-fade about-cta">
+    <h2 class="cta__header">Ready to Join the Family?</h2>
+    <p class="cta__text">
+      If you want a real gym with real standards — welcome. If you want excuses — this isn’t it.
+    </p>
+    <a href="{% url 'join' %}" class="btn">Join Us Now</a>
+  </section>
+
+</div>
+
+<style>
+  .about-page-shell{
+    background:
+      radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
+      radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
+      linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+  }
+
+  .about-gold{ color:#FFD700; }
+  .about-orange{ color:#f9ac54; }
+
+  .about-hero{
+    position: relative;
+    padding: 5rem 1rem 3.5rem;
+    overflow: hidden;
+  }
+
+  .about-hero__grid{
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1.05fr .95fr;
     gap: 2rem;
     align-items: center;
-  ">
-    <div class="tp-left">
-      <div class="tp-fade" style="
-        display:inline-flex;
-        align-items:center;
-        gap:.6rem;
-        padding:.45rem .8rem;
-        border-radius:999px;
-        border:1px solid rgba(255,215,0,.22);
-        background:rgba(0,0,0,.22);
-        color:rgba(255,215,0,.95);
-        font-weight:800;
-        letter-spacing:.3px;
-        margin-bottom: 1.2rem;
-      ">
-        <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
-        RoshaClub • Built Different
-      </div>
-
-      <h1 class="tp-fade" style="
-        font-size: 3.2rem;
-        line-height: 1.1;
-        font-weight: 900;
-        color: #fff;
-        margin-bottom: 1rem;
-      ">
-        A gym that feels like a <span style="color:#FFD700;">family</span> —<br/>
-        but trains like a <span style="color:#f9ac54;">war room</span>.
-      </h1>
-
-      <p class="tp-fade" style="color: rgba(255,255,255,.78); line-height:1.75; font-size: 1.05rem; max-width: 640px;">
-        RoshaClub started in a small garage. No sponsors, no excuses — just discipline.
-        Today it’s a full community where people show up, work hard, and actually change.
-      </p>
-
-      <div class="tp-fade" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.6rem;">
-        <a href="{% url 'join' %}" class="btn" style="text-decoration:none;">Join Us Now</a>
-        <a href="#team" class="btn price__btn" style="text-decoration:none;">Meet the Team</a>
-      </div>
-
-      <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:1.8rem;">
-        <div class="tp-fade" style="min-width:170px; padding: .9rem 1rem; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03);">
-          <div style="color:#FFD700;font-weight:900;font-size:1.2rem;">4</div>
-          <div style="color:rgba(255,255,255,.75);">Founders & coaches</div>
-        </div>
-        <div class="tp-fade" style="min-width:170px; padding: .9rem 1rem; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03);">
-          <div style="color:#FFD700;font-weight:900;font-size:1.2rem;">∞</div>
-          <div style="color:rgba(255,255,255,.75);">No-excuses mindset</div>
-        </div>
-        <div class="tp-fade" style="min-width:170px; padding: .9rem 1rem; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03);">
-          <div style="color:#FFD700;font-weight:900;font-size:1.2rem;">100%</div>
-          <div style="color:rgba(255,255,255,.75);">Community driven</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tp-right" style="position:relative;">
-      <div style="
-        border-radius: 18px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,.10);
-        box-shadow: 0 18px 40px rgba(0,0,0,.45);
-        background: rgba(255,255,255,.03);
-      ">
-        <div style="position:relative;">
-          <img src="{% static 'gym/assets/garage_start.jpg' %}" alt="Garage Beginnings" style="width:100%; height:420px; object-fit:cover; filter:contrast(1.05) saturate(1.05);">
-          <div style="
-            position:absolute; inset:0;
-            background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.65));
-          "></div>
-          <div style="position:absolute; left:18px; bottom:16px;">
-            <div style="color:#fff; font-weight:900; font-size:1.1rem;">From garage to glory</div>
-            <div style="color:rgba(255,255,255,.75);">Discipline → consistency → results</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="tp-fade" style="
-        position:absolute;
-        left:-14px;
-        top:18px;
-        width:110px;height:110px;
-        border-radius:18px;
-        background: radial-gradient(circle at 30% 30%, rgba(255,215,0,.22), rgba(255,215,0,.05));
-        border: 1px solid rgba(255,215,0,.22);
-        filter: blur(.2px);
-      "></div>
-    </div>
-  </div>
-</section>
-
-{# STORY STRIP #}
-<section style="padding: 2.8rem 1rem;">
-  <div style="max-width:1200px;margin:0 auto;">
-    <div style="
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.2rem;
-    ">
-      <div class="price__card tp-fade" style="padding: 1.4rem 1.3rem;">
-        <div class="price__card__content" style="margin-bottom:0;">
-          <h4 style="margin-bottom:.45rem;">01. The Beginning</h4>
-          <p style="margin-bottom:0;">A small garage, rusty dumbbells, and four people who refused to stay average.</p>
-        </div>
-      </div>
-
-      <div class="price__card tp-fade" style="padding: 1.4rem 1.3rem;">
-        <div class="price__card__content" style="margin-bottom:0;">
-          <h4 style="margin-bottom:.45rem;">02. The Culture</h4>
-          <p style="margin-bottom:0;">We don’t “motivate”. We build habits. You either show up — or you don’t.</p>
-        </div>
-      </div>
-
-      <div class="price__card tp-fade" style="padding: 1.4rem 1.3rem;">
-        <div class="price__card__content" style="margin-bottom:0;">
-          <h4 style="margin-bottom:.45rem;">03. The Result</h4>
-          <p style="margin-bottom:0;">Stronger bodies. Sharper minds. A club that actually holds you accountable.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-{# ONE TEAM #}
-<section id="team" class="section__container trainers__container">
-  <h2 class="section__header tp-fade">The Founders (and Your Coaches)</h2>
-  <p class="section__subheader tp-fade">Same people who built RoshaClub — same people who train you.</p>
-
-  <div class="team__grid">
-    {% for trainer in trainers %}
-      <div class="team__member tp-fade">
-        <div class="team__member-image">
-          {% if trainer.get_photo %}
-            <img src="{{ trainer.get_photo }}" alt="{{ trainer.name }}" class="team__photo" />
-          {% else %}
-            <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" />
-          {% endif %}
-        </div>
-
-        <div class="team__member-info">
-          <h3 class="team__name">{{ trainer.name }}</h3>
-          <p class="team__role">{{ trainer.specialization }}</p>
-
-          {% if user.is_authenticated %}
-            <a href="{% url 'trainer_detail' trainer.id %}" class="btn btn-trainer">View Profile</a>
-          {% else %}
-            <a href="{% url 'join' %}" class="btn btn-trainer">View Profile</a>
-          {% endif %}
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-</section>
-
-{# CTA #}
-<section class="cta tp-fade" style="margin-bottom: 0; padding-bottom: 3.5rem;">
-  <h2 class="cta__header">Ready to Join the Family?</h2>
-  <p class="cta__text">
-    If you want a real gym with real standards — welcome. If you want excuses — this isn’t it.
-  </p>
-  <a href="{% url 'join' %}" class="btn">Join Us Now</a>
-</section>
-
-</div>
-
-{# mobile tweaks without touching css file #}
-<style>
-  @media (max-width: 980px){
-    section[style*="grid-template-columns: 1.05fr"] > div { grid-template-columns: 1fr !important; }
-  }
-  @media (max-width: 860px){
-    section[style*="grid-template-columns: repeat(3"] > div { grid-template-columns: 1fr !important; }
   }
 
-  /* ===== About: safe animations (no blank space) ===== */
-  .tp-fade, .tp-left, .tp-right { opacity: 1; transform: none; }
+  .about-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.6rem;
+    padding:.45rem .8rem;
+    border-radius:999px;
+    border:1px solid rgba(255,215,0,.22);
+    background:rgba(0,0,0,.22);
+    color:rgba(255,215,0,.95);
+    font-weight:800;
+    letter-spacing:.3px;
+    margin-bottom: 1.2rem;
+  }
+
+  .about-badge__dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,215,0,.95);
+    display:inline-block;
+  }
+
+  .about-hero__title{
+    font-size: 3.2rem;
+    line-height: 1.1;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+
+  .about-hero__text{
+    color: rgba(255,255,255,.78);
+    line-height:1.75;
+    font-size: 1.05rem;
+    max-width: 640px;
+  }
+
+  .about-hero__actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:1.6rem;
+  }
+
+  .about-stats{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top:1.8rem;
+  }
+
+  .about-stat{
+    min-width: 0;
+    padding: .95rem 1rem;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.03);
+  }
+
+  .about-stat__value{
+    color:#FFD700;
+    font-weight:900;
+    font-size:1.2rem;
+    margin-bottom: .2rem;
+  }
+
+  .about-stat__label{
+    color:rgba(255,255,255,.75);
+    line-height: 1.45;
+  }
+
+  .about-hero__visual{
+    position:relative;
+  }
+
+  .about-hero__image-card{
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 18px 40px rgba(0,0,0,.45);
+    background: rgba(255,255,255,.03);
+  }
+
+  .about-hero__image-wrap{
+    position:relative;
+  }
+
+  .about-hero__image{
+    width:100%;
+    height:420px;
+    object-fit:cover;
+    display:block;
+    filter:contrast(1.05) saturate(1.05);
+  }
+
+  .about-hero__overlay{
+    position:absolute;
+    inset:0;
+    background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.65));
+  }
+
+  .about-hero__caption{
+    position:absolute;
+    left:18px;
+    right:18px;
+    bottom:16px;
+  }
+
+  .about-hero__caption-title{
+    color:#fff;
+    font-weight:900;
+    font-size:1.1rem;
+    margin-bottom: .2rem;
+  }
+
+  .about-hero__caption-text{
+    color:rgba(255,255,255,.75);
+    line-height: 1.45;
+  }
+
+  .about-hero__glow{
+    position:absolute;
+    left:-14px;
+    top:18px;
+    width:110px;
+    height:110px;
+    border-radius:18px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,215,0,.22), rgba(255,215,0,.05));
+    border: 1px solid rgba(255,215,0,.22);
+    filter: blur(.2px);
+    z-index: 0;
+  }
+
+  .about-story{
+    padding: 2.8rem 1rem;
+  }
+
+  .about-story__grid{
+    max-width:1200px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+
+  .about-story__card{
+    padding: 1.4rem 1.3rem;
+  }
+
+  .about-story__content{
+    margin-bottom:0 !important;
+  }
+
+  .about-story__content h4{
+    margin-bottom:.45rem;
+  }
+
+  .about-story__content p{
+    margin-bottom:0;
+    line-height: 1.65;
+  }
+
+  .about-team-section{
+    padding-top: 1rem;
+  }
+
+  .about-cta{
+    margin-bottom: 0;
+    padding-bottom: 3.5rem;
+  }
+
+  /* ===== About: safe animations ===== */
+  .tp-fade, .tp-left, .tp-right {
+    opacity: 1;
+    transform: none;
+  }
 
   .tp-ready .tp-fade,
   .tp-ready .tp-left,
@@ -210,15 +353,210 @@
     transition: opacity .55s ease, transform .55s ease;
     will-change: opacity, transform;
   }
+
   .tp-ready .tp-left{ transform: translateX(-26px); }
   .tp-ready .tp-right{ transform: translateX(26px); }
 
-  .tp-show{ opacity: 1 !important; transform: translate(0,0) !important; }
+  .tp-show{
+    opacity: 1 !important;
+    transform: translate(0,0) !important;
+  }
+
+  /* ===== Tablet ===== */
+  @media (max-width: 1100px){
+    .about-hero__grid{
+      grid-template-columns: 1fr;
+      gap: 1.8rem;
+    }
+
+    .about-hero__title{
+      font-size: 2.7rem;
+    }
+
+    .about-hero__text{
+      max-width: 100%;
+    }
+
+    .about-hero__visual{
+      max-width: 760px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .about-story__grid{
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ===== Mobile ===== */
+  @media (max-width: 768px){
+    .about-hero{
+      padding: 3.4rem 1rem 2.4rem;
+    }
+
+    .about-badge{
+      font-size: .84rem;
+      padding: .42rem .72rem;
+      margin-bottom: 1rem;
+    }
+
+    .about-hero__title{
+      font-size: 2.15rem;
+      line-height: 1.08;
+      margin-bottom: .9rem;
+      letter-spacing: -.02em;
+    }
+
+    .about-hero__break{
+      display: none;
+    }
+
+    .about-hero__text{
+      font-size: .98rem;
+      line-height: 1.72;
+    }
+
+    .about-hero__actions{
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .about-hero__actions .btn,
+    .about-hero__actions .price__btn{
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .about-stats{
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 1.4rem;
+    }
+
+    .about-stat{
+      padding: .9rem .95rem;
+    }
+
+    .about-hero__image{
+      height: 300px;
+    }
+
+    .about-hero__caption{
+      left:14px;
+      right:14px;
+      bottom:14px;
+    }
+
+    .about-hero__caption-title{
+      font-size: 1rem;
+    }
+
+    .about-hero__caption-text{
+      font-size: .92rem;
+    }
+
+    .about-hero__glow{
+      width: 78px;
+      height: 78px;
+      left: -6px;
+      top: 12px;
+      border-radius: 14px;
+    }
+
+    .about-story{
+      padding: 1.6rem 1rem 2rem;
+    }
+
+    .about-story__grid{
+      gap: .9rem;
+    }
+
+    .about-story__card{
+      padding: 1.1rem 1rem;
+    }
+
+    .about-story__content h4{
+      font-size: 1rem;
+    }
+
+    .about-story__content p{
+      font-size: .95rem;
+      line-height: 1.6;
+    }
+
+    .about-team-section{
+      padding-top: .5rem;
+    }
+
+    .about-cta{
+      padding-bottom: 2.4rem;
+    }
+
+    .about-cta .cta__header{
+      font-size: 2rem;
+      line-height: 1.15;
+    }
+
+    .about-cta .cta__text{
+      font-size: .98rem;
+      line-height: 1.7;
+      max-width: 100%;
+      padding-inline: .2rem;
+    }
+  }
+
+  /* ===== Small phones ===== */
+  @media (max-width: 480px){
+    .about-hero{
+      padding: 3rem .85rem 2rem;
+    }
+
+    .about-hero__title{
+      font-size: 1.82rem;
+      line-height: 1.08;
+    }
+
+    .about-hero__text{
+      font-size: .94rem;
+    }
+
+    .about-hero__image{
+      height: 250px;
+    }
+
+    .about-stat__value{
+      font-size: 1.08rem;
+    }
+
+    .about-stat__label{
+      font-size: .92rem;
+    }
+
+    .about-story{
+      padding: 1.35rem .85rem 1.8rem;
+    }
+
+    .about-story__card{
+      padding: 1rem .92rem;
+      border-radius: 16px;
+    }
+
+    .about-cta .cta__header{
+      font-size: 1.7rem;
+    }
+
+    .about-cta .btn{
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+    }
+  }
 </style>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // enable animation mode only after DOM is ready (prevents blank sections)
     document.documentElement.classList.add("tp-ready");
 
     const items = Array.from(document.querySelectorAll(".tp-fade, .tp-left, .tp-right"));
@@ -230,7 +568,7 @@
 
         const el = entry.target;
         const i = items.indexOf(el);
-        el.style.transitionDelay = `${Math.min(i * 60, 420)}ms`; // stagger, capped
+        el.style.transitionDelay = `${Math.min(i * 60, 420)}ms`;
         el.classList.add("tp-show");
         obs.unobserve(el);
       });

@@ -14,7 +14,351 @@
     <title>{% block title %}RoshaClub{% endblock %}</title>
 
     <style>
-        /* Minimal toast styling (popup bottom-right) */
+        /* ===== Base ===== */
+        html, body {
+            overflow-x: hidden;
+        }
+
+        body.menu-open {
+            overflow: hidden;
+        }
+
+        /* ===== Navbar ===== */
+        .rc-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: .95rem 1.2rem;
+            background:
+                linear-gradient(180deg, rgba(10,10,12,.94), rgba(8,8,10,.92));
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            box-shadow: 0 10px 28px rgba(0,0,0,.22);
+        }
+
+        .rc-nav__left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 0;
+        }
+
+        .nav__logo img {
+            height: 54px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .rc-nav__desktop {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            margin-left: auto;
+            flex-wrap: wrap;
+        }
+
+        .nav__links {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav__links .link {
+            list-style: none;
+        }
+
+        .nav__links .link a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: .78rem 1rem;
+            border-radius: 12px;
+            color: rgba(255,255,255,.88);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all .22s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav__links .link a:hover {
+            color: #FFD700;
+            background: rgba(255,255,255,.04);
+            border-color: rgba(255,215,0,.12);
+        }
+
+        .nav__username a {
+            color: #FFD700 !important;
+            background: rgba(255,215,0,.06);
+            border: 1px solid rgba(255,215,0,.14) !important;
+        }
+
+        .auth-btn {
+            font-weight: 800 !important;
+        }
+
+        .login-btn {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.10) !important;
+        }
+
+        .logout-btn {
+            background: rgba(239,68,68,.10);
+            border: 1px solid rgba(239,68,68,.18) !important;
+            color: #fff !important;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239,68,68,.16) !important;
+            color: #fff !important;
+        }
+
+        /* ===== Burger button ===== */
+        .rc-burger {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.04);
+            color: #fff;
+            font-size: 1.35rem;
+            cursor: pointer;
+            transition: all .22s ease;
+            flex-shrink: 0;
+        }
+
+        .rc-burger:hover {
+            border-color: rgba(255,215,0,.18);
+            color: #FFD700;
+            background: rgba(255,255,255,.06);
+        }
+
+        /* ===== Mobile menu overlay ===== */
+        .rc-mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.58);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: all .24s ease;
+            z-index: 10040;
+        }
+
+        .rc-mobile-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* ===== Mobile drawer ===== */
+        .rc-mobile-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(390px, 88vw);
+            height: 100vh;
+            transform: translateX(110%);
+            transition: transform .25s ease;
+            z-index: 10050;
+            display: flex;
+            flex-direction: column;
+            background:
+                radial-gradient(900px 320px at 15% 20%, rgba(255,215,0,.10), transparent 60%),
+                radial-gradient(700px 280px at 85% 20%, rgba(249,172,84,.12), transparent 55%),
+                linear-gradient(180deg, rgba(12,12,14,.98), rgba(7,7,9,.99));
+            border-left: 1px solid rgba(255,255,255,.10);
+            box-shadow: -20px 0 42px rgba(0,0,0,.40);
+        }
+
+        .rc-mobile-drawer.open {
+            transform: translateX(0);
+        }
+
+        .rc-mobile-drawer__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 1rem 1rem .95rem;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .rc-mobile-brand {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            min-width: 0;
+        }
+
+        .rc-mobile-brand img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .rc-mobile-brand__text {
+            min-width: 0;
+        }
+
+        .rc-mobile-brand__title {
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.05rem;
+            line-height: 1.1;
+            margin-bottom: .18rem;
+        }
+
+        .rc-mobile-brand__sub {
+            color: rgba(255,255,255,.66);
+            font-size: .88rem;
+            line-height: 1.3;
+        }
+
+        .rc-mobile-close {
+            border: none;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.10);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all .22s ease;
+            flex-shrink: 0;
+        }
+
+        .rc-mobile-close:hover {
+            color: #FFD700;
+            border-color: rgba(255,215,0,.18);
+        }
+
+        .rc-mobile-drawer__body {
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .rc-mobile-user {
+            padding: .95rem 1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,215,0,.14);
+            background: rgba(255,215,0,.05);
+            color: #fff;
+        }
+
+        .rc-mobile-user__label {
+            color: rgba(255,255,255,.62);
+            font-size: .82rem;
+            margin-bottom: .25rem;
+        }
+
+        .rc-mobile-user__name {
+            color: #FFD700;
+            font-weight: 900;
+            line-height: 1.3;
+        }
+
+        .rc-mobile-links {
+            display: flex;
+            flex-direction: column;
+            gap: .55rem;
+        }
+
+        .rc-mobile-link {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            width: 100%;
+            padding: .95rem 1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(255,255,255,.03);
+            color: rgba(255,255,255,.9);
+            text-decoration: none !important;
+            font-weight: 800;
+            transition: all .22s ease;
+        }
+
+        .rc-mobile-link i {
+            font-size: 1.12rem;
+            color: #FFD700;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .rc-mobile-link:hover {
+            color: #fff;
+            background: rgba(255,255,255,.05);
+            border-color: rgba(255,215,0,.14);
+            transform: translateY(-1px);
+        }
+
+        .rc-mobile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: .7rem;
+            margin-top: auto;
+            padding-top: .3rem;
+        }
+
+        .rc-mobile-auth {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 50px;
+            padding: .9rem 1rem;
+            border-radius: 16px;
+            text-decoration: none !important;
+            font-weight: 900;
+            transition: all .22s ease;
+        }
+
+        .rc-mobile-auth--login {
+            color: #111 !important;
+            background: linear-gradient(135deg, #FFD700, #f9ac54);
+            box-shadow: 0 12px 24px rgba(249,172,84,.18);
+        }
+
+        .rc-mobile-auth--logout {
+            color: #fff !important;
+            background: rgba(239,68,68,.14);
+            border: 1px solid rgba(239,68,68,.20);
+        }
+
+        .rc-mobile-auth--profile {
+            color: #fff !important;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.10);
+        }
+
+        .rc-mobile-footer-note {
+            color: rgba(255,255,255,.5);
+            font-size: .82rem;
+            line-height: 1.45;
+            text-align: center;
+            padding: .4rem .25rem 0;
+        }
+
+        /* ===== Minimal toast styling ===== */
         .toast-stack {
             position: fixed;
             right: 20px;
@@ -68,7 +412,6 @@
             color: #fff;
         }
 
-        /* Optional: color hint by tag */
         .toast-success { border-left: 4px solid #22c55e; }
         .toast-error { border-left: 4px solid #ef4444; }
         .toast-warning { border-left: 4px solid #f59e0b; }
@@ -77,52 +420,206 @@
         /* AI Drawer small polish */
         #aiMsgs::-webkit-scrollbar { width: 10px; }
         #aiMsgs::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 999px; }
+
+        /* ===== Footer ===== */
+        .rc-footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 1024px) {
+            .nav__links .link a {
+                padding: .72rem .88rem;
+                font-size: .95rem;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .rc-nav {
+                padding: .85rem 1rem;
+            }
+
+            .rc-nav__desktop {
+                display: none;
+            }
+
+            .rc-burger {
+                display: inline-flex;
+            }
+
+            .nav__logo img {
+                height: 48px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .rc-nav {
+                padding: .78rem .85rem;
+            }
+
+            .nav__logo img {
+                height: 44px;
+            }
+
+            .toast-stack {
+                right: 12px;
+                left: 12px;
+                bottom: 12px;
+            }
+
+            .toast-item {
+                min-width: 0;
+                max-width: none;
+                width: 100%;
+            }
+
+            #aiFab {
+                right: 14px !important;
+                bottom: 14px !important;
+            }
+
+            #aiFab .btn,
+            #aiFab a.btn {
+                padding: .8rem .95rem !important;
+                font-size: .95rem;
+            }
+
+            #aiDrawer {
+                width: 100vw !important;
+            }
+        }
     </style>
 </head>
 
 <body>
     <nav class="rc-nav">
-        <div class="nav__logo">
-            <a href="{% url 'index' %}">
-                <img src="{% static 'gym/assets/logo1.PNG' %}" alt="logo" />
-            </a>
+        <div class="rc-nav__left">
+            <div class="nav__logo">
+                <a href="{% url 'index' %}">
+                    <img src="{% static 'gym/assets/logo1.PNG' %}" alt="logo" />
+                </a>
+            </div>
         </div>
 
-        <ul class="nav__links">
-            <li class="link"><a href="{% url 'index' %}">Home</a></li>
+        <div class="rc-nav__desktop">
+            <ul class="nav__links">
+                <li class="link"><a href="{% url 'index' %}">Home</a></li>
 
-            <li class="link">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'training_programs' %}">Training Program</a>
-                {% else %}
-                    <a href="{% url 'join' %}">Training Program</a>
-                {% endif %}
-            </li>
-
-            <li class="link"><a href="{% url 'about_us' %}">About Us</a></li>
-
-            <li class="link">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'community' %}">Community</a>
-                {% else %}
-                    <a href="{% url 'join' %}">Community</a>
-                {% endif %}
-            </li>
-
-            {% if user.is_authenticated %}
-                <li class="link nav__username">
-                    <a href="{% url 'profile' %}">Welcome, {{ user.username }}</a>
-                </li>
                 <li class="link">
-                    <a href="{% url 'logout' %}" class="auth-btn logout-btn">Logout</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'training_programs' %}">Training Program</a>
+                    {% else %}
+                        <a href="{% url 'join' %}">Training Program</a>
+                    {% endif %}
                 </li>
-            {% else %}
+
+                <li class="link"><a href="{% url 'about_us' %}">About Us</a></li>
+
                 <li class="link">
-                    <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'community' %}">Community</a>
+                    {% else %}
+                        <a href="{% url 'join' %}">Community</a>
+                    {% endif %}
                 </li>
-            {% endif %}
-        </ul>
+
+                {% if user.is_authenticated %}
+                    <li class="link nav__username">
+                        <a href="{% url 'profile' %}">Welcome, {{ user.username }}</a>
+                    </li>
+                    <li class="link">
+                        <a href="{% url 'logout' %}" class="auth-btn logout-btn">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="link">
+                        <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <button id="rcBurger" class="rc-burger" type="button" aria-label="Open menu" aria-expanded="false">
+            <i class="ri-menu-3-line"></i>
+        </button>
     </nav>
+
+    {# Mobile menu #}
+    <div id="rcMobileOverlay" class="rc-mobile-overlay"></div>
+
+    <aside id="rcMobileDrawer" class="rc-mobile-drawer" aria-hidden="true">
+        <div class="rc-mobile-drawer__top">
+            <div class="rc-mobile-brand">
+                <img src="{% static 'gym/assets/logo1.PNG' %}" alt="RoshaClub logo">
+                <div class="rc-mobile-brand__text">
+                    <div class="rc-mobile-brand__title">RoshaClub</div>
+                    <div class="rc-mobile-brand__sub">Discipline. Community. Results.</div>
+                </div>
+            </div>
+
+            <button id="rcMobileClose" class="rc-mobile-close" type="button" aria-label="Close menu">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <div class="rc-mobile-drawer__body">
+            {% if user.is_authenticated %}
+                <div class="rc-mobile-user">
+                    <div class="rc-mobile-user__label">Signed in as</div>
+                    <div class="rc-mobile-user__name">{{ user.username }}</div>
+                </div>
+            {% endif %}
+
+            <div class="rc-mobile-links">
+                <a href="{% url 'index' %}" class="rc-mobile-link">
+                    <i class="ri-home-5-line"></i>
+                    <span>Home</span>
+                </a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'training_programs' %}" class="rc-mobile-link">
+                        <i class="fas fa-dumbbell"></i>
+                        <span>Training Program</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'join' %}" class="rc-mobile-link">
+                        <i class="fas fa-dumbbell"></i>
+                        <span>Training Program</span>
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'about_us' %}" class="rc-mobile-link">
+                    <i class="ri-information-line"></i>
+                    <span>About Us</span>
+                </a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'community' %}" class="rc-mobile-link">
+                        <i class="ri-team-line"></i>
+                        <span>Community</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'join' %}" class="rc-mobile-link">
+                        <i class="ri-team-line"></i>
+                        <span>Community</span>
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="rc-mobile-actions">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="rc-mobile-auth rc-mobile-auth--profile">Go to Profile</a>
+                    <a href="{% url 'logout' %}" class="rc-mobile-auth rc-mobile-auth--logout">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="rc-mobile-auth rc-mobile-auth--login">Login</a>
+                {% endif %}
+
+                <div class="rc-mobile-footer-note">
+                    Built in the RoshaClub style — dark, sharp, and straight to the point.
+                </div>
+            </div>
+        </div>
+    </aside>
 
     {# Toast messages #}
     {% if messages %}
@@ -230,6 +727,49 @@
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZFJ5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script>
+        // ===== Mobile burger menu =====
+        (function () {
+            const burger = document.getElementById('rcBurger');
+            const drawer = document.getElementById('rcMobileDrawer');
+            const overlay = document.getElementById('rcMobileOverlay');
+            const closeBtn = document.getElementById('rcMobileClose');
+            const body = document.body;
+
+            if (!burger || !drawer || !overlay || !closeBtn) return;
+
+            function openMenu() {
+                drawer.classList.add('open');
+                overlay.classList.add('show');
+                body.classList.add('menu-open');
+                burger.setAttribute('aria-expanded', 'true');
+                drawer.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeMenu() {
+                drawer.classList.remove('open');
+                overlay.classList.remove('show');
+                body.classList.remove('menu-open');
+                burger.setAttribute('aria-expanded', 'false');
+                drawer.setAttribute('aria-hidden', 'true');
+            }
+
+            burger.addEventListener('click', openMenu);
+            closeBtn.addEventListener('click', closeMenu);
+            overlay.addEventListener('click', closeMenu);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeMenu();
+                }
+            });
+
+            drawer.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', closeMenu);
+            });
+        })();
+    </script>
 
     <script>
         // Show and auto-hide toasts
