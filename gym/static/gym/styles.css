@@ -830,7 +830,7 @@ color: #FFD700;
 
 /* About Styles */
 .about-section {
-    background-image: url("path/to/your/background.jpg"); 
+    background-image: url("../gym/assets/class-4.webp"); 
     background-color: transparent;
     padding: 3rem 2rem;  
     border-radius: 10px; 
