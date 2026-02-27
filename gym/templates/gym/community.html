@@ -153,6 +153,7 @@
                 src="{{ post.image_url }}"
                 alt="Post Image"
                 class="feed-img"
+                id="post_image_{{ post.id }}"
                 loading="lazy"
                 onerror="this.style.display='none'; this.closest('.feed-media').querySelector('.feed-fallback').style.display='flex';"
               >
@@ -175,7 +176,12 @@
 
             {% if user == post.user %}
               <div class="feed-owner">
-                <button class="edit-btn" data-toggle="modal" data-target="#modal_edit_post_{{ post.id }}" style="border-radius: 12px;">
+                <button
+                  type="button"
+                  class="edit-btn"
+                  onclick="openEditModal({{ post.id }})"
+                  style="border-radius: 12px;"
+                >
                   Edit
                 </button>
 
@@ -187,24 +193,67 @@
                 </form>
               </div>
 
-              {# Edit Modal #}
-              <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                  <div class="modal-content" style="border-radius: 16px; overflow:hidden;">
-                    <div class="modal-header">
-                      <h5 class="modal-title">Edit Post</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+              {# Custom Edit Modal #}
+              <div
+                class="custom-modal"
+                id="modal_edit_post_{{ post.id }}"
+                aria-hidden="true"
+                onclick="handleModalBackdrop(event, {{ post.id }})"
+              >
+                <div
+                  class="custom-modal-dialog"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal_title_{{ post.id }}"
+                >
+                  <div class="custom-modal-content">
+                    <div class="custom-modal-header">
+                      <h5 id="modal_title_{{ post.id }}" class="custom-modal-title">Edit Post</h5>
+                      <button
+                        type="button"
+                        class="custom-modal-close"
+                        onclick="closeEditModal({{ post.id }})"
+                        aria-label="Close"
+                      >
+                        &times;
                       </button>
                     </div>
-                    <div class="modal-body">
-                      <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{ post.content }}</textarea>
+
+                    <div class="custom-modal-body">
+                      <textarea
+                        rows="5"
+                        id="textarea_{{ post.id }}"
+                        class="custom-modal-textarea"
+                        name="content"
+                      >{{ post.content }}</textarea>
+
                       <div style="height:10px;"></div>
-                      <input type="url" id="image_url_{{ post.id }}" class="form-control" name="image_url" value="{{ post.image_url }}" placeholder="Image URL (optional)">
+
+                      <input
+                        type="url"
+                        id="image_url_{{ post.id }}"
+                        class="custom-modal-input"
+                        name="image_url"
+                        value="{{ post.image_url }}"
+                        placeholder="Image URL (optional)"
+                      >
                     </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary" onclick="handleSubmit({{ post.id }})">Save changes</button>
+
+                    <div class="custom-modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeEditModal({{ post.id }})"
+                      >
+                        Close
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="handleSubmit({{ post.id }})"
+                      >
+                        Save changes
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -246,8 +295,7 @@
     border: 1px solid rgba(255,255,255,.10);
     background: rgba(255,255,255,.03);
     box-shadow: 0 18px 40px rgba(0,0,0,.30);
-    overflow:hidden;
-
+    overflow: visible;
     max-width: 360px;
     width: 100%;
     margin: 0 auto;
@@ -274,10 +322,19 @@
     font-weight: 900;
     text-decoration:none !important;
   }
-  .feed-userlink:hover{ color:#ffd700; }
 
-  .feed-dot{ color: rgba(255,255,255,.55); }
-  .feed-date{ color: rgba(255,255,255,.70); font-size:.95rem; }
+  .feed-userlink:hover{
+    color:#ffd700;
+  }
+
+  .feed-dot{
+    color: rgba(255,255,255,.55);
+  }
+
+  .feed-date{
+    color: rgba(255,255,255,.70);
+    font-size:.95rem;
+  }
 
   .feed-media{
     width:100%;
@@ -304,10 +361,19 @@
     color: rgba(255,255,255,.70);
   }
 
-  .feed-fallback{ display:none; }
+  .feed-fallback{
+    display:none;
+  }
 
-  .feed-noimg-title{ color:#fff; font-weight:900; }
-  .feed-noimg-sub{ font-size:.95rem; opacity:.8; }
+  .feed-noimg-title{
+    color:#fff;
+    font-weight:900;
+  }
+
+  .feed-noimg-sub{
+    font-size:.95rem;
+    opacity:.8;
+  }
 
   .feed-body{
     padding: .95rem 1rem 1.05rem;
@@ -327,17 +393,120 @@
     justify-content:flex-end;
   }
 
+  /* ===== Custom modal ===== */
+  .custom-modal{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.60);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+  }
+
+  .custom-modal.is-open{
+    display: flex;
+  }
+
+  .custom-modal-dialog{
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .custom-modal-content{
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(22,22,26,.98), rgba(10,10,12,.98));
+    box-shadow: 0 25px 80px rgba(0,0,0,.45);
+  }
+
+  .custom-modal-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+
+  .custom-modal-title{
+    margin: 0;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 900;
+  }
+
+  .custom-modal-close{
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,.82);
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .custom-modal-close:hover{
+    color: #FFD700;
+  }
+
+  .custom-modal-body{
+    padding: 1rem 1.1rem;
+  }
+
+  .custom-modal-footer{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 0 1.1rem 1rem;
+    flex-wrap: wrap;
+  }
+
+  .custom-modal-textarea,
+  .custom-modal-input{
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    color: rgba(255,255,255,.92);
+    padding: 12px 14px;
+    outline: none;
+  }
+
+  .custom-modal-textarea{
+    resize: vertical;
+    min-height: 140px;
+  }
+
+  .custom-modal-textarea:focus,
+  .custom-modal-input:focus{
+    border-color: rgba(255,215,0,.45);
+    box-shadow: 0 0 0 3px rgba(255,215,0,.08);
+  }
+
   @media (max-width: 1100px){
-    .feed-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .feed-grid{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   @media (max-width: 900px){
-    .feed-grid{ grid-template-columns: 1fr; }
-    .feed-card{ max-width: 520px; }
+    .feed-grid{
+      grid-template-columns: 1fr;
+    }
+
+    .feed-card{
+      max-width: 520px;
+    }
   }
 
   /* ===== Community: safe animations (no blank space) ===== */
-  .tp-fade, .tp-left, .tp-right { opacity: 1; transform: none; }
+  .tp-fade, .tp-left, .tp-right{
+    opacity: 1;
+    transform: none;
+  }
 
   .tp-ready .tp-fade,
   .tp-ready .tp-left,
@@ -347,10 +516,19 @@
     transition: opacity .55s ease, transform .55s ease;
     will-change: opacity, transform;
   }
-  .tp-ready .tp-left{ transform: translateX(-26px); }
-  .tp-ready .tp-right{ transform: translateX(26px); }
 
-  .tp-show{ opacity: 1 !important; transform: translate(0,0) !important; }
+  .tp-ready .tp-left{
+    transform: translateX(-26px);
+  }
+
+  .tp-ready .tp-right{
+    transform: translateX(26px);
+  }
+
+  .tp-show{
+    opacity: 1 !important;
+    transform: translate(0,0) !important;
+  }
 </style>
 
 <script>
@@ -362,7 +540,6 @@
 <script src="{% static 'gym/community.js' %}"></script>
 
 <script>
-  // community page-scoped animations (no conflicts with your global script.js)
   document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.classList.add("tp-ready");
 
@@ -376,7 +553,6 @@
         const el = entry.target;
         const i = items.indexOf(el);
 
-        // stagger, capped (so it doesn't feel slow)
         el.style.transitionDelay = `${Math.min(i * 45, 360)}ms`;
         el.classList.add("tp-show");
         obs.unobserve(el);
