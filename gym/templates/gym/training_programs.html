@@ -114,8 +114,8 @@
     {% for trainer in trainers %}
       <div class="team__member tp-fade">
         <div class="team__member-image">
-          {% if trainer.photo %}
-            <img src="{{ trainer.photo.url }}" alt="{{ trainer.name }}" class="team__photo" />
+          {% if trainer.get_photo %}
+            <img src="{{ trainer.get_photo }}" alt="{{ trainer.name }}" class="team__photo" />
           {% else %}
             <img src="{% static 'gym/assets/default_trainer.jpg' %}" alt="Default Trainer" class="team__photo" />
           {% endif %}

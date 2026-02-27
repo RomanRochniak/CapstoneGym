@@ -251,8 +251,8 @@
                     align-items:center;
                     justify-content:center;
                   ">
-                    {% if trainer.photo %}
-                      <img src="{{ trainer.photo.url }}" alt="Trainer Photo" style="width:100%;height:100%;object-fit:cover;display:block;">
+                    {% if trainer.get_photo %}
+                      <img src="{{ trainer.get_photo }}" alt="Trainer Photo" style="width:100%;height:100%;object-fit:cover;display:block;">
                     {% else %}
                       <div style="color: rgba(255,255,255,.75); font-weight:900;">No photo</div>
                     {% endif %}

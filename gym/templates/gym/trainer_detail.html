@@ -7,8 +7,8 @@
 <section class="trainer-detail__container">
     <div class="trainer-detail__header">
         <div class="trainer-detail__image-container">
-            {% if trainer.photo %}
-                <img src="{{ trainer.photo.url }}" alt="{{ trainer.name }}" class="trainer-detail__image">
+            {% if trainer.get_photo %}
+                <img src="{{ trainer.get_photo }}" alt="{{ trainer.name }}" class="trainer-detail__image">
             {% else %}
                 <p>No photo available</p>
             {% endif %}

@@ -12,7 +12,15 @@ class Trainer(models.Model):
     name = models.CharField(max_length=100)
     specialization = models.CharField(max_length=100)
     description = models.TextField()
-    photo = models.ImageField(upload_to='trainers/')
+    photo = models.ImageField(upload_to='trainers/', blank=True, null=True)
+    photo_url = models.URLField(blank=True, null=True)
+
+    def get_photo(self):
+        if self.photo:
+            return self.photo.url
+        if self.photo_url:
+            return self.photo_url
+        return ""
 
     def __str__(self):
         return self.name
