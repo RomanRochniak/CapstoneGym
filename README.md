@@ -1,6 +1,6 @@
 # CapstoneGym — RoshaClub (Gym Membership Management System)
 
-**Demo demo:** https://capstonegym.onrender.com
+**Live demo:** https://capstonegym.onrender.com
 
 RoshaClub is a Django web application for gym membership management with a modern, product-like UI and an **AI Fitness Assistant**.  
 Users can browse training programs, view trainer profiles, purchase memberships securely via Stripe, manage their profiles, and interact in a community feed.
