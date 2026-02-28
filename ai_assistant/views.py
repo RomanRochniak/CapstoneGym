@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Dict, List, Optional
 
+import httpx
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -55,14 +56,23 @@ def chat_api(request):
         return JsonResponse({"error": "Message is required"}, status=400)
 
     session: Optional[ChatSession] = None
+
     if session_id:
-        session = ChatSession.objects.filter(id=session_id, user=request.user, is_active=True).first()
+        session = ChatSession.objects.filter(
+            id=session_id,
+            user=request.user,
+            is_active=True,
+        ).first()
         if not session:
             return JsonResponse({"error": "Session not found"}, status=404)
     else:
         session = ChatSession.objects.create(user=request.user, title="")
 
-    ChatMessage.objects.create(session=session, role=ChatMessage.ROLE_USER, content=message)
+    ChatMessage.objects.create(
+        session=session,
+        role=ChatMessage.ROLE_USER,
+        content=message,
+    )
 
     history = _get_history(session, limit=10)
 
@@ -89,18 +99,67 @@ def chat_api(request):
             },
             suggestions=suggestions,
         )
-    except Exception:
-        logger.exception("AI chat failed")
-        return JsonResponse({"error": "AI service unavailable. Try again later."}, status=503)
+    except httpx.TimeoutException:
+        logger.exception("AI timeout")
+        return JsonResponse(
+            {"error": "AI timeout. Please try again in a few seconds."},
+            status=504,
+        )
+    except httpx.HTTPStatusError as e:
+        status_code = e.response.status_code
+        body = e.response.text[:1000]
+
+        logger.exception(
+            "AI upstream HTTP error status=%s body=%s",
+            status_code,
+            body,
+        )
+
+        if status_code == 429:
+            return JsonResponse(
+                {"error": "Gemini quota/rate limit exceeded. Try again later."},
+                status=429,
+            )
+
+        if status_code == 400:
+            return JsonResponse(
+                {"error": "Gemini request rejected. Check model / API key / request body."},
+                status=502,
+            )
+
+        if status_code == 401:
+            return JsonResponse(
+                {"error": "Gemini authentication failed. Check API key."},
+                status=502,
+            )
+
+        if status_code == 403:
+            return JsonResponse(
+                {"error": "Gemini access denied. Check API key and project permissions."},
+                status=502,
+            )
+
+        return JsonResponse(
+            {"error": "AI upstream service failed."},
+            status=502,
+        )
+    except Exception as e:
+        logger.exception("AI chat failed: %s", str(e))
+        return JsonResponse(
+            {"error": f"AI internal error: {str(e)}"},
+            status=500,
+        )
 
     ChatMessage.objects.create(
         session=session,
         role=ChatMessage.ROLE_ASSISTANT,
         content=resp.text,
-        meta={"provider": resp.provider, "model": resp.model, **(resp.meta or {})},
+        meta={
+            "provider": resp.provider,
+            "model": resp.model,
+            **(resp.meta or {}),
+        },
     )
-
-    ChatSession.objects.filter(id=session.id).update()
 
     return JsonResponse(
         {
@@ -108,6 +167,6 @@ def chat_api(request):
             "response": resp.text,
             "provider": resp.provider,
             "model": resp.model,
-            "suggestions": suggestions,  # optional for UI chips later
+            "suggestions": suggestions,
         }
     )

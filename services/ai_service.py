@@ -57,68 +57,105 @@ class OllamaProvider(BaseProvider):
 
         with httpx.Client(timeout=timeout) as client:
             r = client.post(url, json=payload)
+
+            if r.status_code >= 400:
+                logger.error(
+                    "Ollama API error status=%s model=%s body=%s",
+                    r.status_code,
+                    self.model,
+                    r.text[:2000],
+                )
+
             r.raise_for_status()
             data = r.json()
 
         text = ""
         choices = data.get("choices") or []
         if choices:
-            msg = (choices[0].get("message") or {})
+            msg = choices[0].get("message") or {}
             text = (msg.get("content") or "").strip()
 
         if not text:
             text = "I didn't get a response. Please try again."
 
-        return LLMResponse(text=text, provider=self.name, model=self.model, meta={})
+        return LLMResponse(
+            text=text,
+            provider=self.name,
+            model=self.model,
+            meta={},
+        )
 
 
 class GeminiProvider(BaseProvider):
     def __init__(self) -> None:
         self.name = "gemini"
-        self.model = getattr(settings, "GEMINI_MODEL", "gemini-1.5-flash")
+        self.model = getattr(settings, "GEMINI_MODEL", "gemini-2.5-flash")
         self.api_key = getattr(settings, "GEMINI_API_KEY", "")
+
+    def _messages_to_prompt(self, messages: List[Dict[str, str]]) -> str:
+        lines: List[str] = []
+
+        for m in messages:
+            role = (m.get("role") or "").strip().lower()
+            content = (m.get("content") or "").strip()
+
+            if not content:
+                continue
+
+            if role == "system":
+                lines.append(f"System: {content}")
+            elif role == "assistant":
+                lines.append(f"Assistant: {content}")
+            else:
+                lines.append(f"User: {content}")
+
+        lines.append("Assistant:")
+        return "\n\n".join(lines)
 
     def chat(self, messages: List[Dict[str, str]]) -> LLMResponse:
         if not self.api_key:
             raise RuntimeError("GEMINI_API_KEY is missing")
 
-        timeout = httpx.Timeout(getattr(settings, "AI_TIMEOUT_SECONDS", 20))
+        timeout = httpx.Timeout(getattr(settings, "AI_TIMEOUT_SECONDS", 30))
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         params = {"key": self.api_key}
-
         prompt = self._messages_to_prompt(messages)
-        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}]
+        }
 
         with httpx.Client(timeout=timeout) as client:
             r = client.post(url, params=params, json=payload)
+
+            if r.status_code >= 400:
+                logger.error(
+                    "Gemini API error status=%s model=%s body=%s",
+                    r.status_code,
+                    self.model,
+                    r.text[:2000],
+                )
+
             r.raise_for_status()
             data = r.json()
 
         text = ""
         candidates = data.get("candidates") or []
         if candidates:
-            parts = (((candidates[0].get("content") or {}).get("parts")) or [])
+            content = candidates[0].get("content") or {}
+            parts = content.get("parts") or []
             if parts:
                 text = (parts[0].get("text") or "").strip()
 
         if not text:
             text = "I didn't get a response. Please try again."
 
-        return LLMResponse(text=text, provider=self.name, model=self.model, meta={})
-
-    def _messages_to_prompt(self, messages: List[Dict[str, str]]) -> str:
-        lines: List[str] = []
-        for m in messages:
-            role = m.get("role")
-            content = m.get("content", "")
-            if role == "system":
-                lines.append(f"SYSTEM: {content}")
-            elif role == "user":
-                lines.append(f"USER: {content}")
-            else:
-                lines.append(f"ASSISTANT: {content}")
-        lines.append("ASSISTANT:")
-        return "\n".join(lines)
+        return LLMResponse(
+            text=text,
+            provider=self.name,
+            model=self.model,
+            meta={},
+        )
 
 
 class LLMService:
@@ -127,12 +164,15 @@ class LLMService:
 
     def _get_provider(self) -> BaseProvider:
         p = (getattr(settings, "AI_PROVIDER", "ollama") or "ollama").lower().strip()
+        logger.info("Selected AI provider: %s", p)
+
         if p == "gemini":
             return GeminiProvider()
+
         return OllamaProvider()
 
     def _cache_key(self, messages: List[Dict[str, str]]) -> str:
-        raw = "|".join([f"{m.get('role')}:{m.get('content')}" for m in messages[-12:]])
+        raw = "|".join(f"{m.get('role')}:{m.get('content')}" for m in messages[-12:])
         h = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:24]
         return f"ai:resp:{self.provider.name}:{self.provider.model}:{h}"
 
@@ -153,9 +193,9 @@ class LLMService:
 
         system_block = SYSTEM_PROMPT
         if site_context_text:
-            system_block = system_block + " " + site_context_text
+            system_block += " " + site_context_text
         if suggestions_text:
-            system_block = system_block + " " + suggestions_text
+            system_block += " " + suggestions_text
 
         messages = [{"role": "system", "content": system_block}] + conversation_history + [
             {"role": "user", "content": user_message}
@@ -174,15 +214,35 @@ class LLMService:
         try:
             resp = self.provider.chat(messages)
         except httpx.TimeoutException:
-            logger.warning("AI timeout provider=%s model=%s", self.provider.name, self.provider.model)
+            logger.warning(
+                "AI timeout provider=%s model=%s",
+                self.provider.name,
+                self.provider.model,
+            )
+            raise
+        except httpx.HTTPStatusError:
+            logger.exception(
+                "AI HTTP error provider=%s model=%s",
+                self.provider.name,
+                self.provider.model,
+            )
             raise
         except Exception:
-            logger.exception("AI provider error provider=%s model=%s", self.provider.name, self.provider.model)
+            logger.exception(
+                "AI provider error provider=%s model=%s",
+                self.provider.name,
+                self.provider.model,
+            )
             raise
 
         cache.set(
             ck,
-            {"text": resp.text, "provider": resp.provider, "model": resp.model, "meta": resp.meta},
+            {
+                "text": resp.text,
+                "provider": resp.provider,
+                "model": resp.model,
+                "meta": resp.meta,
+            },
             timeout=getattr(settings, "AI_CACHE_SECONDS", 120),
         )
         return resp
