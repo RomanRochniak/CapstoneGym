@@ -55,6 +55,13 @@ class OllamaProvider(BaseProvider):
             "temperature": 0.7,
         }
 
+        logger.info(
+            "Sending Ollama request model=%s timeout=%s messages=%s",
+            self.model,
+            getattr(settings, "AI_TIMEOUT_SECONDS", 20),
+            len(messages),
+        )
+
         with httpx.Client(timeout=timeout) as client:
             r = client.post(url, json=payload)
 
@@ -116,7 +123,8 @@ class GeminiProvider(BaseProvider):
         if not self.api_key:
             raise RuntimeError("GEMINI_API_KEY is missing")
 
-        timeout = httpx.Timeout(getattr(settings, "AI_TIMEOUT_SECONDS", 30))
+        timeout_value = getattr(settings, "AI_TIMEOUT_SECONDS", 30)
+        timeout = httpx.Timeout(timeout_value)
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
         params = {"key": self.api_key}
         prompt = self._messages_to_prompt(messages)
@@ -125,8 +133,17 @@ class GeminiProvider(BaseProvider):
             "contents": [{"parts": [{"text": prompt}]}]
         }
 
+        logger.info(
+            "Sending Gemini request model=%s timeout=%s prompt_len=%s",
+            self.model,
+            timeout_value,
+            len(prompt),
+        )
+
         with httpx.Client(timeout=timeout) as client:
             r = client.post(url, params=params, json=payload)
+
+            logger.info("Gemini raw status=%s model=%s", r.status_code, self.model)
 
             if r.status_code >= 400:
                 logger.error(

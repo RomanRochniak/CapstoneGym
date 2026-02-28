@@ -9,7 +9,7 @@ from django.core.cache import cache
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from .models import ChatSession, ChatMessage
+from .models import ChatMessage, ChatSession
 from services.ai_service import LLMService
 from services.context import build_site_context, match_trainers_and_programs
 
@@ -107,7 +107,7 @@ def chat_api(request):
         )
     except httpx.HTTPStatusError as e:
         status_code = e.response.status_code
-        body = e.response.text[:1000]
+        body = e.response.text[:2000]
 
         logger.exception(
             "AI upstream HTTP error status=%s body=%s",
@@ -117,30 +117,42 @@ def chat_api(request):
 
         if status_code == 429:
             return JsonResponse(
-                {"error": "Gemini quota/rate limit exceeded. Try again later."},
+                {"error": f"Gemini quota/rate limit exceeded. Details: {body}"},
                 status=429,
             )
 
         if status_code == 400:
             return JsonResponse(
-                {"error": "Gemini request rejected. Check model / API key / request body."},
+                {"error": f"Gemini request rejected. Details: {body}"},
                 status=502,
             )
 
         if status_code == 401:
             return JsonResponse(
-                {"error": "Gemini authentication failed. Check API key."},
+                {"error": f"Gemini authentication failed. Details: {body}"},
                 status=502,
             )
 
         if status_code == 403:
             return JsonResponse(
-                {"error": "Gemini access denied. Check API key and project permissions."},
+                {"error": f"Gemini access denied. Details: {body}"},
+                status=502,
+            )
+
+        if status_code == 404:
+            return JsonResponse(
+                {"error": f"Gemini model or endpoint not found. Details: {body}"},
+                status=502,
+            )
+
+        if status_code >= 500:
+            return JsonResponse(
+                {"error": f"Gemini upstream server error ({status_code}). Details: {body}"},
                 status=502,
             )
 
         return JsonResponse(
-            {"error": "AI upstream service failed."},
+            {"error": f"AI upstream service failed ({status_code}). Details: {body}"},
             status=502,
         )
     except Exception as e:
