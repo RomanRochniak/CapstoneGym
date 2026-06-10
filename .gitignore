@@ -11,7 +11,6 @@ __pycache__/
 *.log
 db.sqlite3
 db.sqlite3-journal
-media/
 staticfiles/
 local_settings.py
 
@@ -38,3 +37,5 @@ node_modules/
 dist/
 build/
 *.egg-info/
+seed_data.json
+db copy.sqlite3
