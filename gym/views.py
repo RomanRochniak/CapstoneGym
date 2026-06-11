@@ -1,6 +1,5 @@
 import json
-import os
-from datetime import date, timedelta
+from datetime import timedelta
 
 import stripe
 from django.conf import settings
@@ -11,12 +10,53 @@ from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import Membership, Payment, Post, Trainer, TrainingProgram
+from .models import Membership, Post, Trainer, TrainingProgram
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def today():
+    return timezone.localdate()
+
+
+def expire_old_memberships(user=None):
+    """
+    Mark active memberships as expired when their end_date is already in the past.
+    If user is provided, only that user's memberships are updated.
+    """
+    queryset = Membership.objects.filter(
+        status="active",
+        end_date__lt=today(),
+    )
+
+    if user is not None:
+        queryset = queryset.filter(user=user)
+
+    return queryset.update(status="expired")
+
+
+def get_active_membership(user):
+    """
+    Return the user's currently valid active membership.
+    This checks both status and date range.
+    """
+    expire_old_memberships(user)
+
+    return (
+        Membership.objects.filter(
+            user=user,
+            status="active",
+            start_date__lte=today(),
+            end_date__gte=today(),
+        )
+        .select_related("program", "program__trainer")
+        .order_by("-end_date")
+        .first()
+    )
 
 
 @csrf_exempt
@@ -27,51 +67,48 @@ def process_payment(request, program_id):
     Keep it protected so a user cannot create a second active membership.
     """
     program = get_object_or_404(TrainingProgram, pk=program_id)
-    today = date.today()
+    current_date = today()
 
-    # Auto-expire old memberships first
-    Membership.objects.filter(
-        user=request.user,
-        status="active",
-        end_date__lt=today
-    ).update(status="expired")
-
-    # Block purchase if user already has an active membership
-    active_membership = Membership.objects.filter(
-        user=request.user,
-        status="active",
-        end_date__gte=today
-    ).select_related("program").first()
+    active_membership = get_active_membership(request.user)
 
     if active_membership:
         if request.method == "POST":
-            return JsonResponse({
-                "success": False,
-                "error": f"You already have an active membership ({active_membership.program.name}). You can purchase a new one after it expires or contact the manager."
-            }, status=400)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": (
+                        f"You already have an active membership "
+                        f"({active_membership.program.name}). "
+                        "You can purchase a new one after it expires or contact the manager."
+                    ),
+                },
+                status=400,
+            )
 
         messages.warning(
             request,
             f"You already have an active membership ({active_membership.program.name}). "
-            "You can purchase a new one after it expires or contact the manager."
+            "You can purchase a new one after it expires or contact the manager.",
         )
         return redirect("training_programs")
 
     if request.method == "POST":
         try:
             payment_token = request.POST.get("google_pay_token")
+
             if not payment_token:
                 raise ValueError("Payment token is missing.")
 
             Membership.objects.create(
                 user=request.user,
                 program=program,
-                start_date=today,
-                end_date=today + timedelta(days=30),
+                start_date=current_date,
+                end_date=current_date + timedelta(days=30),
                 status="active",
             )
 
             return JsonResponse({"success": True, "message": "Payment successful!"})
+
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=400)
 
@@ -88,24 +125,45 @@ def process_payment(request, program_id):
 
 @login_required
 def memberships_list(request):
-    memberships = Membership.objects.filter(user=request.user).order_by("-end_date")
+    expire_old_memberships(request.user)
+
+    memberships = (
+        Membership.objects.filter(user=request.user)
+        .select_related("program", "program__trainer")
+        .order_by("-end_date")
+    )
+
     return render(request, "memberships/list.html", {"memberships": memberships})
 
 
 @login_required
 def create_membership(request, program_id):
+    """
+    Creates a membership directly.
+    Note: if this route is reachable without payment, it can be abused.
+    For a real production app, membership creation should happen only after successful payment.
+    """
     program = get_object_or_404(TrainingProgram, id=program_id)
+    current_date = today()
 
-    # Close previous active memberships (avoid multiple actives)
-    Membership.objects.filter(user=request.user, status="active").update(status="expired")
+    active_membership = get_active_membership(request.user)
+
+    if active_membership:
+        messages.warning(
+            request,
+            f"You already have an active membership ({active_membership.program.name}). "
+            "You can purchase a new one after it expires.",
+        )
+        return redirect("training_programs")
 
     Membership.objects.create(
         user=request.user,
         program=program,
-        start_date=date.today(),
-        end_date=date.today() + timedelta(days=30),
+        start_date=current_date,
+        end_date=current_date + timedelta(days=30),
         status="active",
     )
+
     return redirect("memberships_list")
 
 
@@ -121,24 +179,18 @@ def about_us(request):
 
 @login_required
 def training_programs(request):
+    expire_old_memberships(request.user)
+
     programs = TrainingProgram.objects.all()
     trainers = Trainer.objects.all()
 
-    # Auto-expire on page visit
-    today = date.today()
-    Membership.objects.filter(
-        user=request.user,
-        status="active",
-        end_date__lt=today
-    ).update(status="expired")
+    user_memberships = (
+        Membership.objects.filter(user=request.user)
+        .select_related("program", "program__trainer")
+        .order_by("-end_date")
+    )
 
-    user_memberships = Membership.objects.filter(user=request.user).order_by("-end_date")
-
-    active_membership = Membership.objects.filter(
-        user=request.user,
-        status="active",
-        end_date__gte=today
-    ).select_related("program").first()
+    active_membership = get_active_membership(request.user)
 
     context = {
         "programs": programs,
@@ -146,6 +198,7 @@ def training_programs(request):
         "user_memberships": user_memberships,
         "active_membership": active_membership,
     }
+
     return render(request, "gym/training_programs.html", context)
 
 
@@ -164,23 +217,29 @@ def register(request):
 
         try:
             User = get_user_model()
-            user = User._default_manager.create_user(username=username, email=email, password=password)
+            user = User._default_manager.create_user(
+                username=username,
+                email=email,
+                password=password,
+            )
             user.first_name = first_name
             user.last_name = last_name
             user.save()
+
         except IntegrityError:
             return render(request, "gym/register.html", {"message": "Username already taken."})
 
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
-    else:
-        return render(request, "gym/register.html")
+
+    return render(request, "gym/register.html")
 
 
 def login_view(request):
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
+
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -199,27 +258,7 @@ def logout_view(request):
 
 @login_required
 def profile(request):
-    """
-    Auto-expire memberships and show the current active one (by date range).
-    """
-    today = date.today()
-
-    # 1) expire old actives
-    Membership.objects.filter(user=request.user, status="active", end_date__lt=today).update(status="expired")
-
-    # 2) pick current active membership by date
-    membership = (
-        Membership.objects.filter(user=request.user, start_date__lte=today, end_date__gte=today)
-        .select_related("program__trainer")
-        .order_by("-end_date")
-        .first()
-    )
-
-    # Optional: keep status consistent if dates say active
-    if membership and membership.status != "active":
-        membership.status = "active"
-        membership.save(update_fields=["status"])
-
+    membership = get_active_membership(request.user)
     trainer = membership.program.trainer if membership and membership.program else None
 
     return render(
@@ -258,37 +297,35 @@ def program_detail(request, id):
 def trainer_detail(request, trainer_id):
     trainer = get_object_or_404(Trainer, id=trainer_id)
     programs = TrainingProgram.objects.filter(trainer=trainer)
-    return render(request, "gym/trainer_detail.html", {"trainer": trainer, "programs": programs})
+
+    return render(
+        request,
+        "gym/trainer_detail.html",
+        {
+            "trainer": trainer,
+            "programs": programs,
+        },
+    )
+
 
 @login_required
 def payments(request):
     program_id = request.GET.get("program_id")
+
     if not program_id:
         messages.error(request, "No training program selected.")
         return redirect("training_programs")
 
     program = get_object_or_404(TrainingProgram, pk=program_id)
-    today = date.today()
+    current_date = today()
 
-    # Auto-expire old active memberships first
-    Membership.objects.filter(
-        user=request.user,
-        status="active",
-        end_date__lt=today
-    ).update(status="expired")
-
-    # Check if user already has an active membership
-    active_membership = Membership.objects.filter(
-        user=request.user,
-        status="active",
-        end_date__gte=today
-    ).select_related("program").first()
+    active_membership = get_active_membership(request.user)
 
     if active_membership:
         messages.warning(
             request,
             f"You already have an active membership ({active_membership.program.name}). "
-            "You can purchase a new one after it expires or contact the manager."
+            "You can purchase a new one after it expires or contact the manager.",
         )
         return redirect("training_programs")
 
@@ -298,7 +335,6 @@ def payments(request):
 
         try:
             if token:
-                # Stripe Card payment
                 stripe.Charge.create(
                     amount=int(program.price * 100),
                     currency="usd",
@@ -307,7 +343,6 @@ def payments(request):
                 )
 
             elif google_pay_token:
-                # Google Pay via Stripe PaymentIntent
                 stripe.PaymentIntent.create(
                     amount=int(program.price * 100),
                     currency="usd",
@@ -315,6 +350,7 @@ def payments(request):
                     confirmation_method="manual",
                     confirm=True,
                 )
+
             else:
                 messages.error(request, "No payment token provided.")
                 return HttpResponseRedirect(f"{reverse('payments')}?program_id={program.id}")
@@ -322,8 +358,8 @@ def payments(request):
             Membership.objects.create(
                 user=request.user,
                 program=program,
-                start_date=today,
-                end_date=today + timedelta(days=30),
+                start_date=current_date,
+                end_date=current_date + timedelta(days=30),
                 status="active",
             )
 
@@ -353,6 +389,7 @@ def payments(request):
         },
     )
 
+
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
@@ -361,8 +398,10 @@ def stripe_webhook(request):
 
     try:
         stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+
     except ValueError:
         return HttpResponse(status=400)
+
     except stripe.error.SignatureVerificationError:
         return HttpResponse(status=400)
 
@@ -377,16 +416,21 @@ def community(request):
     page_posts = paginator.get_page(page_number)
 
     if request.user.is_authenticated:
-        liked_post_ids = list(request.user.liked_posts.values_list("id", flat=True))
-        liked_posts_on_current_page = request.user.liked_posts.filter(id__in=[post.id for post in page_posts])
-        liked_post_ids_on_current_page = [post.id for post in liked_posts_on_current_page]
+        liked_post_ids_on_current_page = list(
+            request.user.liked_posts.filter(id__in=[post.id for post in page_posts])
+            .values_list("id", flat=True)
+        )
     else:
         liked_post_ids_on_current_page = []
 
     return render(
         request,
         "gym/community.html",
-        {"page_posts": page_posts, "liked_post_ids": liked_post_ids_on_current_page, "user": request.user},
+        {
+            "page_posts": page_posts,
+            "liked_post_ids": liked_post_ids_on_current_page,
+            "user": request.user,
+        },
     )
 
 
@@ -395,7 +439,13 @@ def new_post(request):
     if request.method == "POST":
         content = request.POST.get("content")
         image_url = request.POST.get("image_url")
-        Post.objects.create(user=request.user, content=content, image_url=image_url)
+
+        Post.objects.create(
+            user=request.user,
+            content=content,
+            image_url=image_url,
+        )
+
     return redirect("community")
 
 
@@ -411,6 +461,7 @@ def edit_post(request, post_id):
 
     try:
         data = json.loads(request.body.decode("utf-8"))
+
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
@@ -428,6 +479,7 @@ def like_add(request, post_id):
 
     post = get_object_or_404(Post, pk=post_id)
     post.likes.add(request.user)
+
     return JsonResponse({"liked": True, "like_count": post.like_count()})
 
 
@@ -438,6 +490,7 @@ def like_remove(request, post_id):
 
     post = get_object_or_404(Post, pk=post_id)
     post.likes.remove(request.user)
+
     return JsonResponse({"liked": False, "like_count": post.like_count()})
 
 
@@ -454,7 +507,11 @@ def user_posts(request, username):
     return render(
         request,
         "gym/profile_community.html",
-        {"profile_user": user, "posts": posts, "liked_post_ids": liked_post_ids},
+        {
+            "profile_user": user,
+            "posts": posts,
+            "liked_post_ids": liked_post_ids,
+        },
     )
 
 
@@ -467,15 +524,16 @@ def delete_post(request, post_id):
 
     post.delete()
     messages.success(request, "The post was successfully deleted.")
+
     return redirect("community")
 
+
 def join(request):
-    # Logged in -> go straight to training programs + toast message
     if request.user.is_authenticated:
         messages.success(request, "Congrats! You’re in the club 💪")
         return redirect("training_programs")
 
-    # Not logged in -> send to login with next
     login_url = reverse("login")
     next_url = reverse("training_programs")
+
     return redirect(f"{login_url}?next={next_url}")

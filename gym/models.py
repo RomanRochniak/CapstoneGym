@@ -1,12 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from datetime import date
-
 from django.contrib.auth import get_user_model
-# Create your models here.
+from django.utils import timezone
+
 
 class User(AbstractUser):
     pass
+
 
 class Trainer(models.Model):
     name = models.CharField(max_length=100)
@@ -36,12 +36,14 @@ class TrainingProgram(models.Model):
     def __str__(self):
         return self.name
 
+
 class Membership(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('expired', 'Expired'),
         ('pending', 'Pending'),
     ]
+
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="memberships")
     program = models.ForeignKey(TrainingProgram, on_delete=models.CASCADE, related_name="memberships")
     start_date = models.DateField()
@@ -53,11 +55,33 @@ class Membership(models.Model):
             models.Index(fields=['user', 'program', 'status']),
         ]
 
+    @property
+    def is_current(self):
+        today = timezone.localdate()
+        return self.status == "active" and self.start_date <= today <= self.end_date
+
+    @property
+    def is_expired_now(self):
+        today = timezone.localdate()
+        return self.end_date < today or self.status == "expired"
+
+    @property
+    def real_status(self):
+        today = timezone.localdate()
+
+        if self.end_date < today:
+            return "expired"
+
+        if self.start_date <= today <= self.end_date and self.status == "active":
+            return "active"
+
+        return self.status
+
     def is_active(self):
-        return self.status == 'active' and self.start_date <= date.today() <= self.end_date
+        return self.is_current
 
     def is_expired(self):
-        return self.status == 'expired' or self.end_date < date.today()
+        return self.is_expired_now
 
     def __str__(self):
         return f"{self.user.username} - {self.program.name}"
@@ -71,7 +95,7 @@ class Payment(models.Model):
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-    content = models.TextField(blank=True, help_text="Post Text")  
+    content = models.TextField(blank=True, help_text="Post Text")
     image_url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
