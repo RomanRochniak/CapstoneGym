@@ -160,11 +160,19 @@
 
   {# CTA #}
   <section class="cta tp-fade tp-cta">
-    <h2 class="cta__header">Ready to start?</h2>
+    <h2 class="cta__header">{% if user.is_authenticated %}Ready to commit?{% else %}Ready to start?{% endif %}</h2>
     <p class="cta__text">
-      Pick a program, commit for 30 days, and you’ll feel the difference.
+      {% if user.is_authenticated %}
+        Choose your program, commit for 30 days, and transform yourself. The grind starts now.
+      {% else %}
+        Pick a program, commit for 30 days, and you'll feel the difference.
+      {% endif %}
     </p>
-    <a href="{% url 'join' %}" class="btn">Join Us Now</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'community' %}" class="btn">⚡ Join the Community</a>
+    {% else %}
+      <a href="{% url 'join' %}" class="btn">Join Us Now</a>
+    {% endif %}
   </section>
 
 </div>

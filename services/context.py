@@ -21,11 +21,9 @@ def build_site_context(user_id: int, limit: int = 30) -> SiteContext:
     user = User.objects.filter(id=user_id).first()
 
     user_payload = {
-        "id": user.id if user else None,
         "username": user.username if user else None,
         "first_name": user.first_name if user else "",
         "last_name": user.last_name if user else "",
-        "email": user.email if user else "",
         "is_authenticated": bool(user),
     }
 

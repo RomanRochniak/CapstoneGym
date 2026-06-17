@@ -28,7 +28,11 @@
         </p>
 
         <div class="about-hero__actions tp-fade">
-          <a href="{% url 'join' %}" class="btn" style="text-decoration:none;">Join Us Now</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'training_programs' %}" class="btn" style="text-decoration:none;">💪 Start Your Journey</a>
+          {% else %}
+            <a href="{% url 'join' %}" class="btn" style="text-decoration:none;">Join Us Now</a>
+          {% endif %}
           <a href="#team" class="btn price__btn" style="text-decoration:none;">Meet the Team</a>
         </div>
 
@@ -133,11 +137,19 @@
 
   {# CTA #}
   <section class="cta tp-fade about-cta">
-    <h2 class="cta__header">Ready to Join the Family?</h2>
+    <h2 class="cta__header">{% if user.is_authenticated %}Ready to Train?{% else %}Ready to Join the Family?{% endif %}</h2>
     <p class="cta__text">
-      If you want a real gym with real standards — welcome. If you want excuses — this isn’t it.
+      {% if user.is_authenticated %}
+        Check out our training programs and start transforming your body. No excuses — just results.
+      {% else %}
+        If you want a real gym with real standards — welcome. If you want excuses — this isn't it.
+      {% endif %}
     </p>
-    <a href="{% url 'join' %}" class="btn">Join Us Now</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'training_programs' %}" class="btn">🔥 Explore Programs</a>
+    {% else %}
+      <a href="{% url 'join' %}" class="btn">Join Us Now</a>
+    {% endif %}
   </section>
 
 </div>

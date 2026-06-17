@@ -93,28 +93,6 @@
                 </div>
               </header>
 
-              <div class="feed-media">
-                {% if post.image_url %}
-                  <img
-                    src="{{ post.image_url }}"
-                    alt="Post Image"
-                    class="feed-img"
-                    id="post_image_{{ post.id }}"
-                    loading="lazy"
-                    onerror="this.style.display='none'; this.closest('.feed-media').querySelector('.feed-fallback').style.display='flex';"
-                  >
-                  <div class="feed-fallback">
-                    <div class="feed-noimg-title">Image failed to load</div>
-                    <div class="feed-noimg-sub">Try another link</div>
-                  </div>
-                {% else %}
-                  <div class="feed-noimg">
-                    <div class="feed-noimg-title">No image</div>
-                    <div class="feed-noimg-sub">Text-only post</div>
-                  </div>
-                {% endif %}
-              </div>
-
               <div class="feed-body">
                 <div class="feed-text" id="content_{{ post.id }}">
                   {{ post.content }}
@@ -138,72 +116,6 @@
                       </button>
                     </form>
                   </div>
-
-                  {# Custom Edit Modal #}
-                  <div
-                    class="custom-modal"
-                    id="modal_edit_post_{{ post.id }}"
-                    aria-hidden="true"
-                    onclick="handleModalBackdrop(event, {{ post.id }})"
-                  >
-                    <div
-                      class="custom-modal-dialog"
-                      role="dialog"
-                      aria-modal="true"
-                      aria-labelledby="modal_title_{{ post.id }}"
-                    >
-                      <div class="custom-modal-content">
-                        <div class="custom-modal-header">
-                          <h5 id="modal_title_{{ post.id }}" class="custom-modal-title">Edit Post</h5>
-                          <button
-                            type="button"
-                            class="custom-modal-close"
-                            onclick="closeEditModal({{ post.id }})"
-                            aria-label="Close"
-                          >
-                            &times;
-                          </button>
-                        </div>
-
-                        <div class="custom-modal-body">
-                          <textarea
-                            rows="5"
-                            id="textarea_{{ post.id }}"
-                            class="custom-modal-textarea"
-                            name="content"
-                          >{{ post.content }}</textarea>
-
-                          <div style="height:10px;"></div>
-
-                          <input
-                            type="url"
-                            id="image_url_{{ post.id }}"
-                            class="custom-modal-input"
-                            name="image_url"
-                            value="{{ post.image_url }}"
-                            placeholder="Image URL (optional)"
-                          >
-                        </div>
-
-                        <div class="custom-modal-footer">
-                          <button
-                            type="button"
-                            class="btn btn-secondary"
-                            onclick="closeEditModal({{ post.id }})"
-                          >
-                            Close
-                          </button>
-                          <button
-                            type="button"
-                            class="btn btn-primary"
-                            onclick="handleSubmit({{ post.id }})"
-                          >
-                            Save changes
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 {% endif %}
               </div>
             </article>
@@ -226,126 +138,186 @@
     </div>
   </section>
 
+  <div
+    class="custom-modal"
+    id="global-edit-modal"
+    aria-hidden="true"
+    onclick="handleModalBackdrop(event)"
+  >
+    <div class="custom-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="global-edit-modal-title">
+      <div class="custom-modal-content">
+        <div class="custom-modal-header">
+          <h5 id="global-edit-modal-title" class="custom-modal-title">Edit Post</h5>
+          <button type="button" class="custom-modal-close" onclick="closeEditModal()" aria-label="Close">
+            &times;
+          </button>
+        </div>
+
+        <div class="custom-modal-body">
+          <textarea
+            rows="8"
+            id="global-edit-textarea"
+            class="custom-modal-textarea"
+            name="content"
+            placeholder="Update your post..."
+          ></textarea>
+        </div>
+
+        <div class="custom-modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+            Close
+          </button>
+          <button type="button" class="btn btn-primary" onclick="handleSubmit()">
+            Save changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <style>
   .feed-grid{
     display:grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.1rem;
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
     align-items: start;
-  }
-
-  .feed-card{
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(255,255,255,.03);
-    box-shadow: 0 18px 40px rgba(0,0,0,.30);
-    overflow: visible;
-    max-width: 360px;
-    width: 100%;
+    justify-items: center;
+    max-width: 520px;
     margin: 0 auto;
   }
 
+  .feed-card{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 28px;
+    border: 1.5px solid rgba(255,215,0,.15);
+    background:
+      radial-gradient(800px 400px at 15% -10%, rgba(255,215,0,.08), transparent 50%),
+      linear-gradient(135deg, rgba(18,18,22,.96) 0%, rgba(10,10,14,.98) 100%);
+    box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+    overflow: hidden;
+    transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease, background .3s ease;
+  }
+
+  .feed-card:hover{
+    transform: translateY(-6px);
+    border-color: rgba(255,215,0,.28);
+    box-shadow: 0 28px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+    background:
+      radial-gradient(800px 400px at 15% -10%, rgba(255,215,0,.12), transparent 50%),
+      linear-gradient(135deg, rgba(22,22,28,.98) 0%, rgba(12,12,16,.99) 100%);
+  }
+
   .feed-head{
-    padding: .9rem 1rem;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: 12px;
-    border-bottom: 1px solid rgba(255,255,255,.08);
+    padding: 1.05rem 1.15rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: start;
+    border-bottom: 1px solid rgba(255,255,255,.075);
   }
 
   .feed-user{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    flex-wrap:wrap;
+    min-width: 0;
   }
 
   .feed-userlink{
-    color: rgba(255,215,0,.95);
+    display: inline-block;
+    color: #FFD700;
     font-weight: 900;
-    text-decoration:none !important;
+    font-size: 1rem;
+    text-decoration: none !important;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .feed-userlink:hover{
+    color: #f9ac54;
   }
 
   .feed-dot{
-    color: rgba(255,255,255,.55);
+    display: none;
   }
 
   .feed-date{
-    color: rgba(255,255,255,.70);
-    font-size:.95rem;
+    display: block;
+    margin-top: .45rem;
+    color: rgba(255,255,255,.58);
+    font-size: .82rem;
+    font-weight: 600;
   }
 
-  .feed-media{
-    width:100%;
-    aspect-ratio: 1 / 1;
-    background: rgba(0,0,0,.22);
-  }
-
-  .feed-img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-  }
-
-  .feed-noimg,
-  .feed-fallback{
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    color: rgba(255,255,255,.70);
-  }
-
-  .feed-fallback{
-    display:none;
-  }
-
-  .feed-noimg-title{
-    color:#fff;
-    font-weight:900;
-  }
-
-  .feed-noimg-sub{
-    font-size:.95rem;
-    opacity:.8;
+  .feed-actions{
+    display: flex;
+    justify-content: flex-end;
   }
 
   .feed-body{
-    padding: .95rem 1rem 1.05rem;
+    padding: 1.15rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
   }
 
   .feed-text{
     color: rgba(255,255,255,.90);
-    line-height: 1.7;
+    line-height: 1.65;
+    font-weight: 600;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .feed-owner{
-    margin-top: .9rem;
-    display:flex;
+    margin-top: auto;
+    display: flex;
     gap: 10px;
-    flex-wrap:wrap;
-    justify-content:flex-end;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
-  /* ===== Custom modal ===== */
+  .feed-owner .edit-btn,
+  .feed-owner .btn-danger{
+    min-width: 110px;
+  }
+
+  .feed-owner .edit-btn{
+    padding: .65rem 1.05rem !important;
+    border-radius: 14px !important;
+    font-weight: 900 !important;
+    border: 1px solid rgba(249,172,84,.75) !important;
+    color: #f9ac54 !important;
+    background: transparent !important;
+  }
+
+  .feed-owner .edit-btn:hover{
+    background: rgba(249,172,84,.12) !important;
+    color: #fff !important;
+  }
+
+  .feed-owner .btn-danger{
+    padding: .65rem 1.05rem !important;
+    border-radius: 14px !important;
+    font-weight: 900 !important;
+    background: linear-gradient(180deg, #f9ac54, #d79447) !important;
+    border: none !important;
+    color: #fff !important;
+  }
+
   .custom-modal{
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.60);
+    background: rgba(5,5,8,.82);
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px;
     z-index: 9999;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(12px);
   }
 
   .custom-modal.is-open{
@@ -353,39 +325,39 @@
   }
 
   .custom-modal-dialog{
-    width: 100%;
-    max-width: 560px;
+    width: min(620px, 100%);
   }
 
   .custom-modal-content{
-    border-radius: 18px;
+    width: 100%;
+    border-radius: 22px;
     overflow: hidden;
+    background: linear-gradient(180deg, rgba(22,22,26,.96), rgba(10,10,12,.99));
     border: 1px solid rgba(255,255,255,.12);
-    background: linear-gradient(180deg, rgba(22,22,26,.98), rgba(10,10,12,.98));
-    box-shadow: 0 25px 80px rgba(0,0,0,.45);
+    box-shadow: 0 35px 90px rgba(0,0,0,.62);
   }
 
   .custom-modal-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 1rem 1.1rem;
+    gap: 14px;
+    padding: 1.1rem 1.25rem;
     border-bottom: 1px solid rgba(255,255,255,.08);
   }
 
   .custom-modal-title{
     margin: 0;
     color: #fff;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 900;
   }
 
   .custom-modal-close{
     border: none;
     background: transparent;
-    color: rgba(255,255,255,.82);
-    font-size: 1.8rem;
+    color: rgba(255,255,255,.84);
+    font-size: 1.95rem;
     line-height: 1;
     cursor: pointer;
   }
@@ -395,52 +367,53 @@
   }
 
   .custom-modal-body{
-    padding: 1rem 1.1rem;
+    padding: 1.2rem 1.25rem;
   }
 
   .custom-modal-footer{
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    padding: 0 1.1rem 1rem;
+    gap: 12px;
+    padding: 0 1.25rem 1.2rem;
     flex-wrap: wrap;
   }
 
   .custom-modal-textarea,
   .custom-modal-input{
     width: 100%;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(255,255,255,.04);
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.05);
     color: rgba(255,255,255,.92);
-    padding: 12px 14px;
+    padding: 16px;
     outline: none;
   }
 
   .custom-modal-textarea{
+    min-height: 180px;
     resize: vertical;
-    min-height: 140px;
+    font-size: .98rem;
   }
 
   .custom-modal-textarea:focus,
   .custom-modal-input:focus{
     border-color: rgba(255,215,0,.45);
-    box-shadow: 0 0 0 3px rgba(255,215,0,.08);
+    box-shadow: 0 0 0 4px rgba(255,215,0,.08);
   }
 
   @media (max-width: 1100px){
     .feed-grid{
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
     }
   }
 
-  @media (max-width: 900px){
+  @media (max-width: 720px){
     .feed-grid{
       grid-template-columns: 1fr;
     }
 
     .feed-card{
-      max-width: 520px;
+      max-width: 100%;
     }
   }
 </style>

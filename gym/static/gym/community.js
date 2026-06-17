@@ -71,6 +71,19 @@ function likeHandler(postId, initialLikedState) {
 ========================= */
 
 function openEditModal(postId) {
+  const globalModal = document.getElementById("global-edit-modal");
+  const globalTextarea = document.getElementById("global-edit-textarea");
+  const contentEl = document.getElementById(`content_${postId}`);
+
+  if (globalModal && globalTextarea && contentEl) {
+    window.currentEditingPostId = postId;
+    globalTextarea.value = contentEl.innerText.trim();
+    globalModal.classList.add("is-open");
+    globalModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    return;
+  }
+
   const modal = document.getElementById(`modal_edit_post_${postId}`);
   if (!modal) return;
 
@@ -80,7 +93,17 @@ function openEditModal(postId) {
 }
 
 function closeEditModal(postId) {
-  const modal = document.getElementById(`modal_edit_post_${postId}`);
+  const globalModal = document.getElementById("global-edit-modal");
+
+  if (globalModal && globalModal.classList.contains("is-open")) {
+    globalModal.classList.remove("is-open");
+    globalModal.setAttribute("aria-hidden", "true");
+    window.currentEditingPostId = null;
+    document.body.style.overflow = "";
+    return;
+  }
+
+  const modal = postId ? document.getElementById(`modal_edit_post_${postId}`) : null;
   if (!modal) return;
 
   modal.classList.remove("is-open");
@@ -89,7 +112,13 @@ function closeEditModal(postId) {
 }
 
 function handleModalBackdrop(event, postId) {
-  if (event.target.id === `modal_edit_post_${postId}`) {
+  const globalModal = document.getElementById("global-edit-modal");
+  if (globalModal && event.target === globalModal) {
+    closeEditModal();
+    return;
+  }
+
+  if (typeof postId !== "undefined" && event.target.id === `modal_edit_post_${postId}`) {
     closeEditModal(postId);
   }
 }
@@ -102,6 +131,7 @@ document.addEventListener("keydown", function (event) {
 
   openModal.classList.remove("is-open");
   openModal.setAttribute("aria-hidden", "true");
+  window.currentEditingPostId = null;
   document.body.style.overflow = "";
 });
 
@@ -110,15 +140,20 @@ document.addEventListener("keydown", function (event) {
 ========================= */
 
 function handleSubmit(postId) {
-  const contentEl = document.getElementById(`textarea_${postId}`);
-  const imageUrlEl = document.getElementById(`image_url_${postId}`);
+  const currentPostId = postId || window.currentEditingPostId;
+  if (!currentPostId) return;
+
+  const contentEl = document.getElementById(
+    postId ? `textarea_${currentPostId}` : "global-edit-textarea"
+  );
+  const imageUrlEl = document.getElementById(`image_url_${currentPostId}`);
 
   if (!contentEl) return;
 
   const content = contentEl.value.trim();
   const image_url = imageUrlEl ? imageUrlEl.value.trim() : "";
 
-  fetch(`/edit/${postId}/`, {
+  fetch(`/edit/${currentPostId}/`, {
     method: "POST",
     headers: {
       "X-CSRFToken": getCookie("csrftoken"),
@@ -137,19 +172,19 @@ function handleSubmit(postId) {
     })
     .then((data) => {
       if (data.message) {
-        const contentOut = document.getElementById(`content_${postId}`);
+        const contentOut = document.getElementById(`content_${currentPostId}`);
         if (contentOut) {
           contentOut.textContent = content;
         }
 
         // optional live image refresh
-        const imageEl = document.getElementById(`post_image_${postId}`);
+        const imageEl = document.getElementById(`post_image_${currentPostId}`);
         if (imageEl && image_url) {
           imageEl.src = image_url;
           imageEl.style.display = "block";
         }
 
-        closeEditModal(postId);
+        closeEditModal(currentPostId);
       } else if (data.error) {
         console.error("Error:", data.error);
         alert(data.error);

@@ -10,100 +10,70 @@
     radial-gradient(1200px 520px at 20% 20%, rgba(255,215,0,.12), transparent 60%),
     radial-gradient(900px 420px at 85% 35%, rgba(249,172,84,.14), transparent 55%),
     linear-gradient(180deg, rgba(12,12,14,.94), rgba(7,7,9,.96));
+  min-height: 100vh;
 ">
 
-{# HERO #}
 <section style="padding: 4.2rem 1rem 2rem;">
   <div style="max-width:1200px; margin:0 auto;">
-    <div style="
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 1.6rem;
-      flex-wrap:wrap;
-    ">
-      <div class="tp-left" style="max-width: 720px;">
-        <div class="tp-fade" style="
-          display:inline-flex;
-          align-items:center;
-          gap:.6rem;
-          padding:.45rem .8rem;
-          border-radius:999px;
-          border:1px solid rgba(255,215,0,.22);
-          background:rgba(0,0,0,.22);
-          color:rgba(255,215,0,.95);
-          font-weight:800;
-          letter-spacing:.3px;
-          margin-bottom: 1.2rem;
-        ">
-          <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
-          Community • Share • Improve
-        </div>
-
-        <h1 class="tp-fade" style="font-size: 3.0rem; line-height: 1.1; font-weight: 900; color:#fff; margin-bottom: .9rem;">
-          Gym Community <span style="color:#FFD700;">—</span> progress is contagious.
-        </h1>
-
-        <p class="tp-fade" style="color: rgba(255,255,255,.78); line-height:1.75; font-size: 1.05rem;">
-          Share tips, routines, wins, and hard lessons. Like posts, help others, and stay locked in.
-        </p>
+    <div class="tp-left" style="max-width:720px;">
+      <div class="tp-fade" style="
+        display:inline-flex;
+        align-items:center;
+        gap:.6rem;
+        padding:.45rem .8rem;
+        border-radius:999px;
+        border:1px solid rgba(255,215,0,.22);
+        background:rgba(0,0,0,.22);
+        color:rgba(255,215,0,.95);
+        font-weight:800;
+        letter-spacing:.3px;
+        margin-bottom:1.2rem;
+      ">
+        <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,215,0,.95);display:inline-block;"></span>
+        Community • Share • Improve
       </div>
+
+      <h1 class="tp-fade" style="font-size:3rem; line-height:1.1; font-weight:900; color:#fff; margin-bottom:.9rem;">
+        Gym Community <span style="color:#FFD700;">—</span> progress is contagious.
+      </h1>
+
+      <p class="tp-fade" style="color:rgba(255,255,255,.78); line-height:1.75; font-size:1.05rem;">
+        Share tips, routines, wins, and hard lessons. Like posts, help others, and stay locked in.
+      </p>
     </div>
   </div>
 </section>
 
-{# NEW POST #}
 {% if user.is_authenticated %}
-<section style="padding: 0 1rem 2rem;">
+<section style="padding:0 1rem 2rem;">
   <div style="max-width:1200px; margin:0 auto;">
-    <div class="tp-fade" style="
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      box-shadow: 0 18px 40px rgba(0,0,0,.35);
-      overflow:hidden;
-    ">
-      <div style="padding: 1.2rem 1.4rem; border-bottom: 1px solid rgba(255,255,255,.08);">
+    <div class="tp-fade create-card">
+      <div class="create-head">
         <div style="color:#fff; font-weight:900; font-size:1.2rem;">Create a post</div>
-        <div style="color:rgba(255,255,255,.72);">Short and real. Add an image if you want.</div>
+        <div style="color:rgba(255,255,255,.72);">Short. Useful. Real. No excuses.</div>
       </div>
 
-      <div style="padding: 1.3rem 1.4rem;">
-        <form id="new-post-form" action="{% url 'new_post' %}" method="post" enctype="multipart/form-data" style="margin:0;">
+      <div style="padding:1.3rem 1.4rem;">
+        <form id="new-post-form" action="{% url 'new_post' %}" method="post" style="margin:0;">
           {% csrf_token %}
 
           <textarea
             name="content"
-            rows="3"
-            placeholder="Share your workout tips..."
+            rows="4"
+            placeholder="Share your workout tip, progress, lesson, or question..."
+            required
             style="
               width:100%;
-              padding: 14px 14px;
-              border-radius: 14px;
-              border: 1px solid rgba(255,255,255,.12);
-              background: rgba(0,0,0,.18);
-              color: rgba(255,255,255,.88);
-              outline: none;
-              resize: vertical;
-              margin-bottom: 12px;
+              padding:14px;
+              border-radius:14px;
+              border:1px solid rgba(255,255,255,.12);
+              background:rgba(0,0,0,.18);
+              color:rgba(255,255,255,.88);
+              outline:none;
+              resize:vertical;
+              margin-bottom:14px;
             "
           ></textarea>
-
-          <input
-            type="url"
-            name="image_url"
-            placeholder="Optional: paste image URL"
-            style="
-              width:100%;
-              padding: 12px 14px;
-              border-radius: 14px;
-              border: 1px solid rgba(255,255,255,.12);
-              background: rgba(0,0,0,.18);
-              color: rgba(255,255,255,.88);
-              outline: none;
-              margin-bottom: 14px;
-            "
-          >
 
           <div style="display:flex; justify-content:flex-end;">
             <button type="submit" class="btn btn-primary" style="width:auto; min-width:160px;">
@@ -117,8 +87,7 @@
 </section>
 {% endif %}
 
-{# FEED #}
-<section style="padding: 0 1rem 2.6rem;">
+<section style="padding:0 1rem 2.6rem;">
   <div style="max-width:1200px; margin:0 auto;">
 
     <div class="feed-grid">
@@ -137,7 +106,7 @@
                   id="like_button_{{ post.id }}"
                   class="like-btn {% if post.id in liked_post_ids %}liked{% endif %}"
                   onclick="likeHandler({{ post.id }}, {% if post.id in liked_post_ids %}true{% else %}false{% endif %})"
-                  style="border-radius: 12px;"
+                  style="border-radius:12px;"
                   title="Like"
                 >
                   <i id="like_icon_{{ post.id }}" class="{% if post.id in liked_post_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
@@ -147,125 +116,34 @@
             </div>
           </header>
 
-          <div class="feed-media">
-            {% if post.image_url %}
-              <img
-                src="{{ post.image_url }}"
-                alt="Post Image"
-                class="feed-img"
-                id="post_image_{{ post.id }}"
-                loading="lazy"
-                onerror="this.style.display='none'; this.closest('.feed-media').querySelector('.feed-fallback').style.display='flex';"
-              >
-              <div class="feed-fallback">
-                <div class="feed-noimg-title">Image failed to load</div>
-                <div class="feed-noimg-sub">Try another link</div>
-              </div>
-            {% else %}
-              <div class="feed-noimg">
-                <div class="feed-noimg-title">No image</div>
-                <div class="feed-noimg-sub">Text-only post</div>
-              </div>
-            {% endif %}
-          </div>
-
           <div class="feed-body">
-            <div class="feed-text" id="content_{{ post.id }}">
-              {{ post.content }}
-            </div>
+            <div class="feed-text" id="content_{{ post.id }}">{{ post.content|linebreaksbr }}</div>
 
             {% if user == post.user %}
               <div class="feed-owner">
-                <button
-                  type="button"
-                  class="edit-btn"
-                  onclick="openEditModal({{ post.id }})"
-                  style="border-radius: 12px;"
-                >
+                <button type="button" class="edit-btn" onclick="openEditModal({{ post.id }})" style="border-radius:12px;">
                   Edit
                 </button>
 
                 <form action="{% url 'delete_post' post.id %}" method="post" style="margin:0;">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-danger" style="border-radius: 12px; padding:.55rem 1rem;">
+                  <button type="submit" class="btn btn-danger" style="border-radius:12px; padding:.55rem 1rem;">
                     Delete
                   </button>
                 </form>
               </div>
-
-              {# Custom Edit Modal #}
-              <div
-                class="custom-modal"
-                id="modal_edit_post_{{ post.id }}"
-                aria-hidden="true"
-                onclick="handleModalBackdrop(event, {{ post.id }})"
-              >
-                <div
-                  class="custom-modal-dialog"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="modal_title_{{ post.id }}"
-                >
-                  <div class="custom-modal-content">
-                    <div class="custom-modal-header">
-                      <h5 id="modal_title_{{ post.id }}" class="custom-modal-title">Edit Post</h5>
-                      <button
-                        type="button"
-                        class="custom-modal-close"
-                        onclick="closeEditModal({{ post.id }})"
-                        aria-label="Close"
-                      >
-                        &times;
-                      </button>
-                    </div>
-
-                    <div class="custom-modal-body">
-                      <textarea
-                        rows="5"
-                        id="textarea_{{ post.id }}"
-                        class="custom-modal-textarea"
-                        name="content"
-                      >{{ post.content }}</textarea>
-
-                      <div style="height:10px;"></div>
-
-                      <input
-                        type="url"
-                        id="image_url_{{ post.id }}"
-                        class="custom-modal-input"
-                        name="image_url"
-                        value="{{ post.image_url }}"
-                        placeholder="Image URL (optional)"
-                      >
-                    </div>
-
-                    <div class="custom-modal-footer">
-                      <button
-                        type="button"
-                        class="btn btn-secondary"
-                        onclick="closeEditModal({{ post.id }})"
-                      >
-                        Close
-                      </button>
-                      <button
-                        type="button"
-                        class="btn btn-primary"
-                        onclick="handleSubmit({{ post.id }})"
-                      >
-                        Save changes
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
             {% endif %}
           </div>
         </article>
+      {% empty %}
+        <div class="empty-feed tp-fade">
+          <h3>No posts yet.</h3>
+          <p>Be the first one to post something useful.</p>
+        </div>
       {% endfor %}
     </div>
 
-    {# pagination #}
-    <nav aria-label="Page navigation example" style="padding: 1.2rem 0 2.2rem;">
+    <nav aria-label="Page navigation example" style="padding:1.2rem 0 2.2rem;">
       <ul class="pagination d-flex justify-content-center tp-fade">
         {% if page_posts.has_previous %}
           <li class="page-item"><a class="page-link" href="?page={{ page_posts.previous_page_number }}">Previous</a></li>
@@ -276,134 +154,246 @@
       </ul>
     </nav>
 
+    <div
+      class="custom-modal"
+      id="global-edit-modal"
+      aria-hidden="true"
+      onclick="handleModalBackdrop(event)"
+    >
+      <div class="custom-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="global-edit-modal-title">
+        <div class="custom-modal-content">
+          <div class="custom-modal-header">
+            <h5 id="global-edit-modal-title" class="custom-modal-title">Edit Post</h5>
+            <button type="button" class="custom-modal-close" onclick="closeEditModal()" aria-label="Close">
+              &times;
+            </button>
+          </div>
+
+          <div class="custom-modal-body">
+            <textarea rows="8" id="global-edit-textarea" class="custom-modal-textarea" name="content" placeholder="Update your post..."></textarea>
+          </div>
+
+          <div class="custom-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" onclick="handleSubmit()">
+              Save changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
 </div>
 
 <style>
-  /* ===== Instagram-like feed (smaller + fallback) ===== */
-  .feed-grid{
-    display:grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.1rem;
-    align-items: start;
-  }
-
-  .feed-card{
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(255,255,255,.03);
-    box-shadow: 0 18px 40px rgba(0,0,0,.30);
-    overflow: visible;
-    max-width: 360px;
-    width: 100%;
+  .create-card{
+    max-width: 820px;
     margin: 0 auto;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));
+    box-shadow: 0 24px 60px rgba(0,0,0,.38);
+    overflow: hidden;
   }
 
-  .feed-head{
-    padding: .9rem 1rem;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: 12px;
+  .create-head{
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid rgba(255,255,255,.08);
   }
 
+  #new-post-form{
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .feed-grid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+    align-items: start;
+    justify-items: center;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .feed-card{
+    width: 100%;
+    max-width: 520px;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1.5px solid rgba(255,215,0,.15);
+    background:
+      radial-gradient(800px 400px at 15% -10%, rgba(255,215,0,.08), transparent 50%),
+      linear-gradient(135deg, rgba(18,18,22,.96) 0%, rgba(10,10,14,.98) 100%);
+    box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+    transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease, background .3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .feed-card:hover{
+    transform: translateY(-6px);
+    border-color: rgba(255,215,0,.28);
+    box-shadow: 0 28px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+    background:
+      radial-gradient(800px 400px at 15% -10%, rgba(255,215,0,.12), transparent 50%),
+      linear-gradient(135deg, rgba(22,22,28,.98) 0%, rgba(12,12,16,.99) 100%);
+  }
+
+  .feed-head{
+    padding: 1.05rem 1.15rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: start;
+    border-bottom: 1px solid rgba(255,255,255,.075);
+  }
+
   .feed-user{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    flex-wrap:wrap;
+    min-width: 0;
   }
 
   .feed-userlink{
-    color: rgba(255,215,0,.95);
+    display: inline-block;
+    color: #FFD700;
     font-weight: 900;
-    text-decoration:none !important;
+    font-size: 1rem;
+    text-decoration: none !important;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .feed-userlink:hover{
-    color:#ffd700;
+    color: #f9ac54;
   }
 
   .feed-dot{
-    color: rgba(255,255,255,.55);
+    display: none;
   }
 
   .feed-date{
-    color: rgba(255,255,255,.70);
-    font-size:.95rem;
+    display: block;
+    margin-top: .45rem;
+    color: rgba(255,255,255,.58);
+    font-size: .82rem;
+    font-weight: 600;
   }
 
-  .feed-media{
-    width:100%;
-    aspect-ratio: 1 / 1;
-    background: rgba(0,0,0,.22);
+  .feed-actions{
+    display: flex;
+    justify-content: flex-end;
   }
 
-  .feed-img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
+  .feed-card .like-btn{
+    min-width: 64px !important;
+    height: 44px !important;
+    padding: 0 .75rem !important;
+    border-radius: 15px !important;
+    border: 1px solid rgba(249,172,84,.55) !important;
+    background: rgba(249,172,84,.15) !important;
+    color: #fff !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-weight: 900;
+    box-shadow: 0 10px 24px rgba(249,172,84,.10);
   }
 
-  .feed-noimg,
-  .feed-fallback{
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    color: rgba(255,255,255,.70);
-  }
-
-  .feed-fallback{
-    display:none;
-  }
-
-  .feed-noimg-title{
-    color:#fff;
-    font-weight:900;
-  }
-
-  .feed-noimg-sub{
-    font-size:.95rem;
-    opacity:.8;
+  .feed-card .like-btn:hover,
+  .feed-card .like-btn.liked{
+    background: linear-gradient(180deg, #f9ac54, #d79447) !important;
+    border-color: rgba(249,172,84,.9) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(249,172,84,.18);
   }
 
   .feed-body{
-    padding: .95rem 1rem 1.05rem;
+    padding: 1.15rem 1.25rem 1.15rem;
   }
 
   .feed-text{
     color: rgba(255,255,255,.90);
-    line-height: 1.7;
-    white-space: pre-wrap;
+    font-size: .98rem;
+    line-height: 1.65;
+    font-weight: 600;
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    margin: 0;
   }
 
   .feed-owner{
-    margin-top: .9rem;
-    display:flex;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,.07);
+    display: flex;
     gap: 10px;
-    flex-wrap:wrap;
-    justify-content:flex-end;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
-  /* ===== Custom modal ===== */
+  .feed-owner form{
+    margin: 0 !important;
+  }
+
+  .feed-owner .edit-btn{
+    padding: .65rem 1.05rem !important;
+    border-radius: 14px !important;
+    font-weight: 900 !important;
+    border: 1px solid rgba(249,172,84,.75) !important;
+    color: #f9ac54 !important;
+    background: transparent !important;
+  }
+
+  .feed-owner .edit-btn:hover{
+    background: rgba(249,172,84,.12) !important;
+    color: #fff !important;
+  }
+
+  .feed-owner .btn-danger{
+    padding: .65rem 1.05rem !important;
+    border-radius: 14px !important;
+    font-weight: 900 !important;
+    background: linear-gradient(180deg, #f9ac54, #d79447) !important;
+    border: none !important;
+    color: #fff !important;
+  }
+
+  .empty-feed{
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 1rem;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.03);
+    color: rgba(255,255,255,.8);
+  }
+
+  .empty-feed h3{
+    color: #fff;
+    font-weight: 900;
+    margin-bottom: .5rem;
+  }
+
   .custom-modal{
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.60);
+    background: rgba(5,5,8,.82);
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px;
     z-index: 9999;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(12px);
   }
 
   .custom-modal.is-open{
@@ -411,39 +401,39 @@
   }
 
   .custom-modal-dialog{
-    width: 100%;
-    max-width: 560px;
+    width: min(620px, 100%);
   }
 
   .custom-modal-content{
-    border-radius: 18px;
+    width: 100%;
+    border-radius: 22px;
     overflow: hidden;
+    background: linear-gradient(180deg, rgba(22,22,26,.96), rgba(10,10,12,.99));
     border: 1px solid rgba(255,255,255,.12);
-    background: linear-gradient(180deg, rgba(22,22,26,.98), rgba(10,10,12,.98));
-    box-shadow: 0 25px 80px rgba(0,0,0,.45);
+    box-shadow: 0 35px 90px rgba(0,0,0,.62);
   }
 
   .custom-modal-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 1rem 1.1rem;
+    gap: 14px;
+    padding: 1.1rem 1.25rem;
     border-bottom: 1px solid rgba(255,255,255,.08);
   }
 
   .custom-modal-title{
     margin: 0;
     color: #fff;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 900;
   }
 
   .custom-modal-close{
     border: none;
     background: transparent;
-    color: rgba(255,255,255,.82);
-    font-size: 1.8rem;
+    color: rgba(255,255,255,.84);
+    font-size: 1.95rem;
     line-height: 1;
     cursor: pointer;
   }
@@ -453,57 +443,52 @@
   }
 
   .custom-modal-body{
-    padding: 1rem 1.1rem;
+    padding: 1.2rem 1.25rem;
   }
 
   .custom-modal-footer{
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    padding: 0 1.1rem 1rem;
+    gap: 12px;
+    padding: 0 1.25rem 1.2rem;
     flex-wrap: wrap;
   }
 
-  .custom-modal-textarea,
-  .custom-modal-input{
-    width: 100%;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(255,255,255,.04);
-    color: rgba(255,255,255,.92);
-    padding: 12px 14px;
-    outline: none;
-  }
-
   .custom-modal-textarea{
+    width: 100%;
+    min-height: 180px;
+    max-height: 300px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.05);
+    color: rgba(255,255,255,.92);
+    padding: 16px;
+    outline: none;
     resize: vertical;
-    min-height: 140px;
+    font-size: 0.98rem;
+    line-height: 1.6;
   }
 
-  .custom-modal-textarea:focus,
-  .custom-modal-input:focus{
+  .custom-modal-textarea:focus{
     border-color: rgba(255,215,0,.45);
-    box-shadow: 0 0 0 3px rgba(255,215,0,.08);
+    box-shadow: 0 0 0 4px rgba(255,215,0,.08);
   }
 
   @media (max-width: 1100px){
     .feed-grid{
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
     }
   }
 
-  @media (max-width: 900px){
+  @media (max-width: 720px){
     .feed-grid{
       grid-template-columns: 1fr;
     }
-
-    .feed-card{
-      max-width: 520px;
-    }
   }
 
-  /* ===== Community: safe animations (no blank space) ===== */
-  .tp-fade, .tp-left, .tp-right{
+  .tp-fade,
+  .tp-left,
+  .tp-right{
     opacity: 1;
     transform: none;
   }
@@ -529,6 +514,7 @@
     opacity: 1 !important;
     transform: translate(0,0) !important;
   }
+
 </style>
 
 <script>
@@ -537,6 +523,7 @@
     likeRemove: "{% url 'like_remove' 0 %}".replace("/0/", "/")
   };
 </script>
+
 <script src="{% static 'gym/community.js' %}"></script>
 
 <script>

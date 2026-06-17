@@ -437,14 +437,13 @@ def community(request):
 @login_required
 def new_post(request):
     if request.method == "POST":
-        content = request.POST.get("content")
-        image_url = request.POST.get("image_url")
+        content = request.POST.get("content", "").strip()
 
-        Post.objects.create(
-            user=request.user,
-            content=content,
-            image_url=image_url,
-        )
+        if content:
+            Post.objects.create(
+                user=request.user,
+                content=content,
+            )
 
     return redirect("community")
 
@@ -461,12 +460,15 @@ def edit_post(request, post_id):
 
     try:
         data = json.loads(request.body.decode("utf-8"))
-
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON data"}, status=400)
 
-    post.content = data.get("content", post.content)
-    post.image_url = data.get("image_url", post.image_url)
+    content = data.get("content", "").strip()
+
+    if not content:
+        return JsonResponse({"error": "Post content cannot be empty."}, status=400)
+
+    post.content = content
     post.save()
 
     return JsonResponse({"message": "Post edited successfully"})
